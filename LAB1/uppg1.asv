@@ -1,0 +1,17 @@
+%% Assignment a)
+x = -50:.001:10;
+
+y = x^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20
+
+
+%% Assignment b)
+
+
+
+%% Assignment c)
+
+
+
+%% Assignment d)
+
+
