@@ -7,6 +7,10 @@ y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
 
 plot(x, y);
 
+
+
+
+
 %% 1b - fixpunktiterationer
 
 format long
@@ -59,8 +63,6 @@ function xn = newton_c(x, original_x, iteration, print_diff)
     
 end
 
-
-
 for num = num_to_check
     iteration_array = newton(num, error_margin);
     newton_c(num, num, 1, 0);
@@ -69,6 +71,7 @@ end
 fprintf('\n|xn+1 - xn| values for starting point 4.08:\n')
 
 newton_c(4.08, 4.08, 1, 1);
+
 
 
 
