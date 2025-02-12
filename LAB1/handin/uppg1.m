@@ -19,21 +19,21 @@ function y = func1(x)
     y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
 end
 
-function x_n = fixpoint(x, original_x, iteration, last_ten)
+function xn = fixpoint(x, original_x, iteration, last_ten)
     global print_list iteration_count
-    x_n = 0.05 * (x.^2 + (12*x) - (10 * sin((3.5 * x) + 1 ))) + 1;
+    xn = 0.05 * (x.^2 + (12*x) - (10 * sin((3.5 * x) + 1 ))) + 1;
 
     if last_ten == 1
-        print_list(iteration) = abs(x_n - x);
+        print_list(iteration) = abs(xn - x);
         iteration_count = iteration;
     end
        
     
-    if abs(func1(x_n)) > 10^(-10)
+    if abs(func1(xn)) > 10^(-10)
         iteration = iteration + 1;
-        x_n = fixpoint(x_n, original_x, iteration, last_ten);
+        xn = fixpoint(xn, original_x, iteration, last_ten);
     else
-        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(x_n, '%.11g')])
+        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
         if last_ten == 1
             iteration_count = iteration;
         end
@@ -62,18 +62,18 @@ function y = func1_derivative(x)
     y = 2*x - 8  - 35 * cos( (3.5 * x) + 1);
 end
 
-function x_n = newton(x, original_x, iteration, print_diff)
-    x_n = x - (func1(x)/func1_derivative(x));
+function xn = newton(x, original_x, iteration, print_diff)
+    xn = x - (func1(x)/func1_derivative(x));
 
     if print_diff == 1
-        disp(abs(x_n - x))
+        disp(abs(xn - x))
     end
     
-    if abs(func1(x_n)) > 10^(-10)
+    if abs(func1(xn)) > 10^(-10)
         iteration = iteration + 1;
-        x_n = newton(x_n, original_x, iteration, print_diff);
+        xn = newton(xn, original_x, iteration, print_diff);
     else
-        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(x_n, '%.11g')])
+        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
     end
     
 end
@@ -94,9 +94,34 @@ figure(2)
 
 % kod...
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 function xit = fixpunkt(x0,tau)
+    xn = func1(x0)
+
+%  Indata:
+%
+%  x0  - startgissning (skalär)
+%  tau - feltolerans (skalär)
+%
+%  Utdata:
+%
+%  xit - vektor av alla approximationer xit = [x0,x1,x2,x3,...]
+
+if 
+
+% kod...
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function xit = newton_d(x0,tau)
+
+    if x_n < tau
+        xit = newton();
+    else
+    end
 
 %  Indata:
 %
@@ -112,20 +137,5 @@ function xit = fixpunkt(x0,tau)
 
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function xit = newton(x0,tau)
-
-%  Indata:
-%
-%  x0  - startgissning (skalär)
-%  tau - feltolerans (skalär)
-%
-%  Utdata:
-%
-%  xit - vektor av alla approximationer xit = [x0,x1,x2,x3,...]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% kod...
-
-end
+e_n_array = newton_d(1.81, 0.5*10^(-15));
