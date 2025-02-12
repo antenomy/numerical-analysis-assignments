@@ -97,6 +97,7 @@ fprintf('\n|xn+1 - xn| values for starting point 5.77:\n')
 newton_c(4.08, 4.08, 1, 1);
 
 
+
 %% Assignment d)
 
 figure(2)

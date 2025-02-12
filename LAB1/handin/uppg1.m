@@ -11,50 +11,31 @@ plot(x, y);
 
 format long
 
-global print_list iteration_count
-print_list = zeros(1, 100);
-iteration_count = 0;
-
 function y = func1(x)
     y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
 end
 
-function xn = fixpoint(x, original_x, iteration, last_ten)
-    global print_list iteration_count
-    xn = 0.05 * (x.^2 + (12*x) - (10 * sin((3.5 * x) + 1 ))) + 1;
-
-    if last_ten == 1
-        print_list(iteration) = abs(xn - x);
-        iteration_count = iteration;
-    end
-       
-    
-    if abs(func1(xn)) > 10^(-10)
-        iteration = iteration + 1;
-        xn = fixpoint(xn, original_x, iteration, last_ten);
-    else
-        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
-        if last_ten == 1
-            iteration_count = iteration;
-        end
-    end
-end
-
-num_to_check = [1.81, 2.17, 3.44, 4.08, 5.27];
+num_to_check = [1.81, 2.17, 3.44, 5.27, 5.77];
+error_margin = 10^(-10);
 
 for num = num_to_check
-    fixpoint(num, num, 1, 0);
+    iteration_array = fixpoint(num, error_margin);
+    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
 
-fixpoint(5.77, 5.77, 1, 1);
+iteration_array = fixpoint(5.77, error_margin);
+disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\nLast 10 |xn+1 - xn| values for starting point 5.77:\n')
 
-print_list = print_list(iteration_count-9:iteration_count);
-
-for element = print_list
+for element = iteration_array(end-10:end)
     disp(element)
 end
+
+
+
+
+
 
 %% 1c - Newton
 
@@ -62,7 +43,7 @@ function y = func1_derivative(x)
     y = 2*x - 8  - 35 * cos( (3.5 * x) + 1);
 end
 
-function xn = newton(x, original_x, iteration, print_diff)
+function xn = newton_c(x, original_x, iteration, print_diff)
     xn = x - (func1(x)/func1_derivative(x));
 
     if print_diff == 1
@@ -71,71 +52,87 @@ function xn = newton(x, original_x, iteration, print_diff)
     
     if abs(func1(xn)) > 10^(-10)
         iteration = iteration + 1;
-        xn = newton(xn, original_x, iteration, print_diff);
+        xn = newton_c(xn, original_x, iteration, print_diff);
     else
         disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
     end
     
 end
 
-num_to_check_2 = [1.81, 2.17, 3.44, 5.27, 5.77];
 
-for num = num_to_check_2
-    newton(num, num, 1, 0);
+
+for num = num_to_check
+    iteration_array = newton(num, error_margin);
+    newton_c(num, num, 1, 0);
 end
 
 fprintf('\n|xn+1 - xn| values for starting point 4.08:\n')
 
-newton(4.08, 4.08, 1, 1);
+newton_c(4.08, 4.08, 1, 1);
+
+
+
+
 
 %% 1d - konvergensplottar
 
 figure(2)
 
-% kod...
+reference_x = newton(1.81, 10^(-16));
+reference_x = reference_x(end);
+% Reference Value of x: 1.815260247632966
 
 
+function xit = fixpoint(x0,tau)
 
-function xit = fixpunkt(x0,tau)
-    xn = func1(x0)
+    max_iter = 1000;
+    xit = x0;
+    xn = x0;
+    iter = 1;
 
-%  Indata:
-%
-%  x0  - startgissning (skalär)
-%  tau - feltolerans (skalär)
-%
-%  Utdata:
-%
-%  xit - vektor av alla approximationer xit = [x0,x1,x2,x3,...]
-
-if 
-
-% kod...
-
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function xit = newton_d(x0,tau)
-
-    if x_n < tau
-        xit = newton();
-    else
+    while abs(func1(xn)) > tau && max_iter > iter
+        xn = 0.05 * (xn.^2 + (12*xn) - (10 * sin((3.5 * xn) + 1 ))) + 1;
+        xit = [xit, xn];
+        iter = iter + 1;
     end
+end
 
-%  Indata:
-%
-%  x0  - startgissning (skalär)
-%  tau - feltolerans (skalär)
-%
-%  Utdata:
-%
-%  xit - vektor av alla approximationer xit = [x0,x1,x2,x3,...]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function xit = newton(x0,tau)
 
-% kod...
+    max_iter = 100;
+    xit = x0;
+    xn = x0;
+    iter = 1;
 
+    while abs(func1(xn)) > tau && max_iter > iter
+        xn = xn - (func1(xn)/func1_derivative(xn));
+        xit = [xit, xn];
+        iter = iter + 1;
+    end
 end
 
 
-e_n_array = newton_d(1.81, 0.5*10^(-15));
+e_newton_array = newton(1.81, 0.5*10^(-15));
+e_fixpoint_array = fixpoint(1.81, 0.5*10^(-15));
+
+semilogy(0:length(e_newton_array)-1, abs(e_newton_array-reference_x), '-o');
+hold on;
+semilogy(0:length(e_fixpoint_array)-1, abs(e_fixpoint_array-reference_x), '-o');
+
+xlabel('Iteration Number');
+ylabel('Error');
+
+figure(3)
+
+e_newton_array_n = e_newton_array(1:end-1);
+e_fixpoint_array_n = e_fixpoint_array(1:end-1);
+
+e_newton_array_n1 = e_newton_array(2:end);
+e_fixpoint_array_n1 = e_fixpoint_array(2:end);
+
+loglog(abs(e_newton_array_n-reference_x), abs(e_newton_array_n1-reference_x), '-o');
+hold on;
+loglog(abs(e_fixpoint_array_n-reference_x), abs(e_fixpoint_array_n1-reference_x), '-o');
+
+xlabel('e_n');
+ylabel('e_{n+1}');
