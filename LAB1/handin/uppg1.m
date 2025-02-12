@@ -24,11 +24,11 @@ error_margin = 10^(-10);
 
 for num = num_to_check
     iteration_array = fixpoint(num, error_margin);
-    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
+    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
 
 iteration_array = fixpoint(4.08, error_margin);
-disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
+disp(['Starting Point: 4.08   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\nLast 10 |xn+1 - xn| values for starting point 5.77:\n')
 
@@ -53,29 +53,26 @@ function xn = newton_c(x, original_x, iteration, print_diff)
     if print_diff == 1
         disp(abs(xn - x))
     end
-    
+
     if abs(func1(xn)) > 10^(-10)
         iteration = iteration + 1;
         xn = newton_c(xn, original_x, iteration, print_diff);
     else
         disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
     end
-    
 end
 
 for num = num_to_check
     iteration_array = newton(num, error_margin);
-    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
+    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
+
+iteration_array = newton(4.08, error_margin);
+disp(['Starting Point: 4.08   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\n|xn+1 - xn| values for starting point 4.08:\n')
 
-iteration_array = fixpoint(4.08, error_margin);
-disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
-
-fprintf('\n|xn+1 - xn| values for starting point 5.77:\n')
-
-for element = iteration_array(end-10:end)
+for element = iteration_array
     disp(element)
 end
 
