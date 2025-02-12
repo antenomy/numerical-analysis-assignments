@@ -27,7 +27,7 @@ for num = num_to_check
     disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
 
-iteration_array = fixpoint(5.77, error_margin);
+iteration_array = fixpoint(4.08, error_margin);
 disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\nLast 10 |xn+1 - xn| values for starting point 5.77:\n')
@@ -65,13 +65,19 @@ end
 
 for num = num_to_check
     iteration_array = newton(num, error_margin);
-    newton_c(num, num, 1, 0);
+    disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
 
 fprintf('\n|xn+1 - xn| values for starting point 4.08:\n')
 
-newton_c(4.08, 4.08, 1, 1);
+iteration_array = fixpoint(4.08, error_margin);
+disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array), '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
+fprintf('\n|xn+1 - xn| values for starting point 5.77:\n')
+
+for element = iteration_array(end-10:end)
+    disp(element)
+end
 
 
 
