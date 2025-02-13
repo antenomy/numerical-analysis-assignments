@@ -2,8 +2,12 @@
 
 figure(1)
 
+function y = func1(x)
+    y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
+end
+
 x = -10:.001:10;
-y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
+y = func1(x);
 
 plot(x, y);
 
@@ -15,20 +19,13 @@ plot(x, y);
 
 format long
 
-function y = func1(x)
-    y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
-end
-
-num_to_check = [1.81, 2.17, 3.44, 5.27, 5.77];
+num_to_check = [1.81, 2.17, 3.44, 5.27, 5.77, 4.08];
 error_margin = 10^(-10);
 
 for num = num_to_check
     iteration_array = fixpoint(num, error_margin);
     disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
-
-iteration_array = fixpoint(4.08, error_margin);
-disp(['Starting Point: 4.08   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\nLast 10 |xn+1 - xn| values for starting point 5.77:\n')
 
@@ -43,32 +40,16 @@ end
 
 %% 1c - Newton
 
+format long
+
 function y = func1_derivative(x)
     y = 2*x - 8  - 35 * cos( (3.5 * x) + 1);
-end
-
-function xn = newton_c(x, original_x, iteration, print_diff)
-    xn = x - (func1(x)/func1_derivative(x));
-
-    if print_diff == 1
-        disp(abs(xn - x))
-    end
-
-    if abs(func1(xn)) > 10^(-10)
-        iteration = iteration + 1;
-        xn = newton_c(xn, original_x, iteration, print_diff);
-    else
-        disp(['Starting Point: ', num2str(original_x), '   Total Iterations: ', num2str(iteration, '%.11g'), '    Approximate root: ', num2str(xn, '%.11g')])
-    end
 end
 
 for num = num_to_check
     iteration_array = newton(num, error_margin);
     disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 end
-
-iteration_array = newton(4.08, error_margin);
-disp(['Starting Point: 4.08   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
 
 fprintf('\n|xn+1 - xn| values for starting point 4.08:\n')
 
@@ -105,7 +86,7 @@ end
 
 function xit = newton(x0,tau)
 
-    max_iter = 100;
+    max_iter = 1000;
     xit = x0;
     xn = x0;
     iter = 1;
