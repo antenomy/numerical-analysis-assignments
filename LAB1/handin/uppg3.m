@@ -8,7 +8,7 @@ hold on
 
 matrix_size = height(A);
 b = zeros(matrix_size,1); 
-bel_index = round(n/3);
+bel_index = round(matrix_size/3);
 b(bel_index) = 1;
 
 x = A \ b;
