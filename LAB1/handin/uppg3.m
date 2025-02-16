@@ -21,6 +21,9 @@ plot(xnod(bel_index), ynod(bel_index), 'y*', 'MarkerSize', 15);
 hold off
 
 
+
+
+
 %% Assignment b)
 
 figure(2)
@@ -53,6 +56,10 @@ xlabel('Unkown Variables');
 ylabel('Compute Times (s)');
 grid on
 
+
+
+
+
 %% Assignment c)
 
 load('eiffel1.mat')
@@ -60,12 +67,17 @@ figure(3)
 
 [min_index, max_index] = kanslighet(A, 1);
 
+disp(['Min index: ', num2str(min_index)]);
+disp(['Max index: ', num2str(max_index)]);
 
 trussplot(xnod,ynod,bars, 'w'); 
 hold on
 plot(xnod(max_index), ynod(max_index), 'y*', 'MarkerSize', 15);
 plot(xnod(min_index), ynod(min_index), 'yo', 'MarkerSize', 15);
 hold off
+
+
+
 
 
 %% Assignment d) - Time Table
@@ -103,13 +115,11 @@ function [jmin,jmax]=kanslighet(A,metod)
             jmin = 1;
         elseif Tj < Tj_min
             jmin = iter;
-        end
+        end        
     end 
 end
 
 T = zeros(4, 4);
-
-
 
 for iter = 1:4
     load(file{iter})
@@ -136,28 +146,3 @@ end
 
 tab=array2table(T,'VariableNames',{'Naiv' 'LU' 'Gles' 'Gles LU'},'RowNames',{'eiffel1' 'eiffel2' 'eiffel3' 'eiffel4'});
 disp(tab);
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  Indata:
-%
-%  A     - matrisen
-%  metod - villken metod som används:
-%          1 = Naiv metod
-%          2 = LU-faktorisering
-%
-%  Utdata:
-%
-%  jmin - index för minst känsliga nod
-%  jmax - index för mest känsliga nod
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-
-
-
