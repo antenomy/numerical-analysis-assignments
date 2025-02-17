@@ -2,10 +2,6 @@
 
 figure(1)
 
-function y = func1(x)
-    y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
-end
-
 x = -10:.001:10;
 y = func1(x);
 
@@ -42,10 +38,6 @@ end
 
 format long
 
-function y = func1_derivative(x)
-    y = 2*x - 8  - 35 * cos( (3.5 * x) + 1);
-end
-
 for num = num_to_check
     iteration_array = newton(num, error_margin);
     disp(['Starting Point: ', num2str(num), '   Total Iterations: ', num2str(length(iteration_array)-1, '%.11g'), '    Approximate root: ', num2str(iteration_array(end), '%.11g')]);
@@ -69,6 +61,41 @@ reference_x = newton(1.81, 10^(-16));
 reference_x = reference_x(end);
 % Reference Value of x: 1.815260247632966
 
+
+e_newton_array = newton(1.81, 0.5*10^(-15));
+e_fixpoint_array = fixpoint(1.81, 0.5*10^(-15));
+
+semilogy(0:length(e_newton_array)-1, abs(e_newton_array-reference_x), '-o');
+hold on;
+semilogy(0:length(e_fixpoint_array)-1, abs(e_fixpoint_array-reference_x), '-o');
+
+xlabel('Iteration Number');
+ylabel('Error');
+
+figure(3)
+
+e_newton_array_n = e_newton_array(1:end-1);
+e_fixpoint_array_n = e_fixpoint_array(1:end-1);
+
+e_newton_array_n1 = e_newton_array(2:end);
+e_fixpoint_array_n1 = e_fixpoint_array(2:end);
+
+loglog(abs(e_newton_array_n-reference_x), abs(e_newton_array_n1-reference_x), '-o');
+hold on;
+loglog(abs(e_fixpoint_array_n-reference_x), abs(e_fixpoint_array_n1-reference_x), '-o');
+
+xlabel('e_n');
+ylabel('e_{n+1}');
+
+% FUNCTIONS
+
+function y = func1(x)
+    y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
+end
+
+function y = func1_derivative(x)
+    y = 2*x - 8  - 35 * cos( (3.5 * x) + 1);
+end
 
 function xit = fixpoint(x0,tau)
 
@@ -97,29 +124,3 @@ function xit = newton(x0,tau)
         iter = iter + 1;
     end
 end
-
-
-e_newton_array = newton(1.81, 0.5*10^(-15));
-e_fixpoint_array = fixpoint(1.81, 0.5*10^(-15));
-
-semilogy(0:length(e_newton_array)-1, abs(e_newton_array-reference_x), '-o');
-hold on;
-semilogy(0:length(e_fixpoint_array)-1, abs(e_fixpoint_array-reference_x), '-o');
-
-xlabel('Iteration Number');
-ylabel('Error');
-
-figure(3)
-
-e_newton_array_n = e_newton_array(1:end-1);
-e_fixpoint_array_n = e_fixpoint_array(1:end-1);
-
-e_newton_array_n1 = e_newton_array(2:end);
-e_fixpoint_array_n1 = e_fixpoint_array(2:end);
-
-loglog(abs(e_newton_array_n-reference_x), abs(e_newton_array_n1-reference_x), '-o');
-hold on;
-loglog(abs(e_fixpoint_array_n-reference_x), abs(e_fixpoint_array_n1-reference_x), '-o');
-
-xlabel('e_n');
-ylabel('e_{n+1}');
