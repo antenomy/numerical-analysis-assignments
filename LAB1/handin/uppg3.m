@@ -13,7 +13,7 @@ x = A \ b;
 xbel = xnod + x(1:2:end); 
 ybel = ynod + x(2:2:end);
 
-trussplot(xnod,ynod,bars, 'w')
+trussplot(xnod,ynod,bars, 'b')
 hold on
 trussplot(xbel,ybel,bars, 'r'); 
 hold on
@@ -70,7 +70,7 @@ figure(3)
 disp(['Min index: ', num2str(min_index)]);
 disp(['Max index: ', num2str(max_index)]);
 
-trussplot(xnod,ynod,bars, 'w'); 
+trussplot(xnod,ynod,bars, 'b'); 
 hold on
 plot(xnod(max_index), ynod(max_index), 'y*', 'MarkerSize', 15);
 plot(xnod(min_index), ynod(min_index), 'yo', 'MarkerSize', 15);
@@ -81,6 +81,9 @@ hold off
 
 
 %% Assignment d) - Time Table
+
+tab=array2table(T,'VariableNames',{'Naiv' 'LU' 'Gles' 'Gles LU'},'RowNames',{'eiffel1' 'eiffel2' 'eiffel3' 'eiffel4'});
+disp(tab);
 
 function [jmin,jmax]=kanslighet(A,metod)
 
@@ -121,7 +124,7 @@ end
 
 T = zeros(4, 4);
 
-for iter = 1:4
+for iter = 1:2
     load(file{iter})
     
     tic;
@@ -143,6 +146,3 @@ for iter = 1:4
     T(iter, 4) = toc
     
 end
-
-tab=array2table(T,'VariableNames',{'Naiv' 'LU' 'Gles' 'Gles LU'},'RowNames',{'eiffel1' 'eiffel2' 'eiffel3' 'eiffel4'});
-disp(tab);
