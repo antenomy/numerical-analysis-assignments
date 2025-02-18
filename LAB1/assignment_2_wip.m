@@ -401,5 +401,3 @@ c = [0.4; -2.5];
 %disp(L);
 %disp(X);
 
-perturbationAnalysis(ra,rb,rc,a,b,c,0.01);
-perturbationAnalysis(ra,rb,rc,a,b,c,-0.01);
