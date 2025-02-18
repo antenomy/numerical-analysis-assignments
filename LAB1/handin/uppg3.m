@@ -82,6 +82,31 @@ hold off
 
 %% Assignment d) - Time Table
 
+T = zeros(4, 4);
+
+for iter = 1:2
+    load(file{iter})
+    
+    tic;
+    kanslighet(A, 1);
+    T(iter, 1) = toc
+    
+    tic;
+    kanslighet(A, 2);
+    T(iter, 2) = toc
+
+    A = sparse(A);
+
+    tic;
+    kanslighet(A, 1);
+    T(iter, 3) = toc
+    
+    tic;
+    kanslighet(A, 2);
+    T(iter, 4) = toc
+    
+end
+
 tab=array2table(T,'VariableNames',{'Naiv' 'LU' 'Gles' 'Gles LU'},'RowNames',{'eiffel1' 'eiffel2' 'eiffel3' 'eiffel4'});
 disp(tab);
 
@@ -120,29 +145,4 @@ function [jmin,jmax]=kanslighet(A,metod)
             jmin = iter;
         end        
     end 
-end
-
-T = zeros(4, 4);
-
-for iter = 1:2
-    load(file{iter})
-    
-    tic;
-    kanslighet(A, 1);
-    T(iter, 1) = toc
-    
-    tic;
-    kanslighet(A, 2);
-    T(iter, 2) = toc
-
-    A = sparse(A);
-
-    tic;
-    kanslighet(A, 1);
-    T(iter, 3) = toc
-    
-    tic;
-    kanslighet(A, 2);
-    T(iter, 4) = toc
-    
 end
