@@ -87,7 +87,11 @@ loglog(abs(e_fixpoint_array_n-reference_x), abs(e_fixpoint_array_n1-reference_x)
 xlabel('e_n');
 ylabel('e_{n+1}');
 
-% FUNCTIONS
+
+
+
+
+%%%% FUNCTIONS
 
 function y = func1(x)
     y = x.^2 - (8 * x) - 10 * sin( (3.5 * x) + 1) + 20;
