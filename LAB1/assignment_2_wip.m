@@ -369,12 +369,37 @@ function [L,X]=langd(ra,rb,rc,a,b,c)
     X = [ABsol, BCsol, CAsol];
 end
 
+function perturbationAnalysis(ra,rb,rc,a,b,c,delta)
+
+    lengths = zeros(1, 10);
+    args = [ra, rb, rc, a(1), a(2), b(1), b(2), c(1), c(2)];
+    [lengths(1), ~] = langd(ra,rb,rc,a,b,c);
+    for i=1:9
+        args(i) = args(i) + delta;
+        [lengths(i+1) ~] = langd( ...
+            args(1), ...
+            args(2), ...
+            args(3), ...
+            [args(4);args(5)], ...
+            [args(6);args(7)], ...
+            [args(8);args(9)] ...
+        );
+    end
+    LDiffs = lengths(2:10) - lengths(1);
+    [minDiff, maxDiff] = bounds(abs(LDiffs));
+    disp(LDiffs);
+    disp(minDiff); disp(maxDiff);
+end
+
 ra = 0.6;
 rb = 0.9;
 rc = 1.5;
 a = [-1; 2];
 b = [3; 0.5];
 c = [0.4; -2.5];
-[L,X]=langd(ra,rb,rc,a,b,c);
-disp(L);
-disp(X);
+%[L,X]=langd(ra,rb,rc,a,b,c);
+%disp(L);
+%disp(X);
+
+perturbationAnalysis(ra,rb,rc,a,b,c,0.01);
+perturbationAnalysis(ra,rb,rc,a,b,c,-0.01);
