@@ -8,7 +8,7 @@ b=[2; 0];
 
 [allSolutions, allIterations] = findSolutions(ra, rb, a, b);
 
-disp('solutions')
+disp('Solutions')
 
 for j = 1:size(allSolutions, 2)
     fprintf('Solution %d:\n', j);
@@ -53,7 +53,8 @@ b = [3; 0.5];
 c = [0.4; -2.5];
 
 [L,X]=langd(ra,rb,rc,a,b,c);
-disp(L);
+fprintf('Length: %.5g\n', L);
+fprintf('The solution matrix:\n');
 disp(X);
 
 
@@ -61,8 +62,21 @@ disp(X);
 
 %% 2d)
 
-perturbationAnalysis(ra,rb,rc,a,b,c,0.01);
-perturbationAnalysis(ra,rb,rc,a,b,c,-0.01);
+[LDiffs, E_y, minDiff, maxDiff, iMin, iMax] = ...
+    perturbationAnalysis(ra, rb, rc, a, b, c, 0.01);
+%[LDiffs, forwardError, minDiff, maxDiff, iMin, iMax] = ...
+%    perturbationAnalysis(ra,rb,rc,a,b,c,-0.01);
+
+disp('Length differences:');
+disp(LDiffs);
+
+disp('E_y:');
+disp(E_y);
+
+fprintf('Smallest change = %.5g (caused by argument %d)\n', ...
+    minDiff, iMin);
+fprintf('Largest change = %.5g (caused by argument %d)\n', ...
+    maxDiff, iMax);
 
 
 
@@ -143,39 +157,39 @@ end
 
 %%%% PART C
 
-function hasX=checkPolyX(T1,T2,C1,C2,C3,r1,r2,r3)
+function hasX = checkLineX(x1,y1,x2,y2,x3,y3,x4,y4)
+    hasX = false;
+    denom = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1);
+    if abs(denom) < eps
+        return;
+    end
+    t = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denom;
+    u = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / denom;
+
+    % Intersection if 0 <= t <= 1 and 0 <= u <= 1
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+        hasX = true;
+    end
+end
+
+function hasX = checkPolyX(T1,T2,C1,C2,C3)
     % T1 and T2 are the end points of the tangent line solution
     % C1,C2,C3 are centerpoints of circle as usual
     xTriangle = [C1(1),C2(1),C3(1),C1(1)];
     yTriangle = [C1(2),C2(2),C3(2),C1(2)];
     xTangent = [T1(1),T2(1)];
     yTangent = [T1(2),T2(2)];
-    [xi,yi] = polyxpoly(xTriangle,yTriangle,xTangent,yTangent);
-
-    % Plot the triangle
-    plotTriangle = false;
-    if plotTriangle == true
-        figure;
-        hold on;
-        axis equal;
-        grid on;
-        xlabel('X');
-        ylabel('Y');
-        title('intersect check');
-        plot(xTangent, yTangent, 'r-', 'LineWidth', 2);
-        plot(xTriangle, yTriangle, '-o', 'LineWidth', 2);
-        rectangle('Position', [C1(1)-r1, C1(2)-r1, 2*r1, 2*r1], 'Curvature', [1,1], 'EdgeColor', 'w', 'LineWidth', 1);
-        rectangle('Position', [C2(1)-r2, C2(2)-r2, 2*r2, 2*r2], 'Curvature', [1,1], 'EdgeColor', 'w', 'LineWidth', 1);
-        rectangle('Position', [C3(1)-r3, C3(2)-r3, 2*r3, 2*r3], 'Curvature', [1,1], 'EdgeColor', 'w', 'LineWidth', 1);
-      
-        if ~isempty(xi)
-            plot(xi, yi, 'ko', 'MarkerSize', 8, 'MarkerFaceColor', 'yellow'); % Highlight intersections
+    % Check for intersections between centerpoint triangle and tangent line
+    for i = 1:3
+        hasX = checkLineX( ...
+            xTriangle(i),   yTriangle(i),   ...
+            xTriangle(i+1), yTriangle(i+1), ...
+            xTangent(1),    yTangent(1),    ...
+            xTangent(2),    yTangent(2));
+        if hasX 
+            break;
         end
-        hold off;
     end
-    
-
-    hasX=~isempty(xi);
 end
 
 function outerSolution=getOuterSolution(r1,r2,rOuter,p1,p2,pOuter)
@@ -184,7 +198,7 @@ function outerSolution=getOuterSolution(r1,r2,rOuter,p1,p2,pOuter)
         solution = allSolutions(:, i);
         T1 = solution(1:2);
         T2 = solution(3:4);
-        if ~checkPolyX(T1,T2,p1,p2,pOuter,r1,r2,rOuter);
+        if ~checkPolyX(T1,T2,p1,p2,pOuter);
             outerSolution = solution;
         end
     end
@@ -228,10 +242,10 @@ function L = solveStringSystem(ABsol,BCsol,CAsol,ra,rb,rc,a,b,c)
     [arcDistA, xArcA, yArcA] = getOuterArcDist(CA2,AB1,ra,a);
     [arcDistB, xArcB, yArcB] = getOuterArcDist(AB2,BC1,rb,b);
     [arcDistC, xArcC, yArcC] = getOuterArcDist(BC2,CA1,rc,c);
-
-    ABDist = norm([AB1(1) AB2(1)]-[AB1(2) AB2(2)]);
-    BCDist = norm([BC1(1) BC2(1)]-[BC1(2) BC2(2)]);
-    CADist = norm([CA1(1) CA2(1)]-[CA1(2) CA2(2)]);
+       
+    ABDist = norm(AB2-AB1);
+    BCDist = norm(BC2-BC1);
+    CADist = norm(CA2-CA1);
 
     L = ABDist + BCDist + CADist + arcDistA + arcDistB + arcDistC;
 
@@ -270,9 +284,6 @@ function plotStringSystem(ABsol,BCsol,CAsol,ra,rb,rc,a,b,c,xArcA,yArcA,xArcB,yAr
     plot(xArcA, yArcA, 'r-', 'LineWidth', 2);
     plot(xArcB, yArcB, 'r-', 'LineWidth', 2);
     plot(xArcC, yArcC, 'r-', 'LineWidth', 2);
-
-    % Plot the two arc midpoint candidates
-    
     hold off;
 end
 
@@ -288,12 +299,14 @@ end
 
 %%%% PART D
 
-function perturbationAnalysis(ra,rb,rc,a,b,c,delta)
+function [LDiffs, E_y, minDiff, maxDiff, minIndex, maxIndex] = ...
+    perturbationAnalysis(ra,rb,rc,a,b,c,delta)
 
     lengths = zeros(1, 10);
     args = [ra, rb, rc, a(1), a(2), b(1), b(2), c(1), c(2)];
     [lengths(1), ~] = langd(ra,rb,rc,a,b,c);
     for i=1:9
+        originalVal = args(i);
         args(i) = args(i) + delta;
         [lengths(i+1), ~] = langd( ...
             args(1), ...
@@ -303,9 +316,10 @@ function perturbationAnalysis(ra,rb,rc,a,b,c,delta)
             [args(6);args(7)], ...
             [args(8);args(9)] ...
         );
+        args(i) = originalVal;
     end
     LDiffs = lengths(2:10) - lengths(1);
-    [minDiff, maxDiff] = bounds(abs(LDiffs));
-    disp(LDiffs);
-    disp(minDiff); disp(maxDiff);
+    E_y = sum(abs(LDiffs));
+    [minDiff, minIndex] = min(abs(LDiffs));
+    [maxDiff, maxIndex] = max(abs(LDiffs));
 end
