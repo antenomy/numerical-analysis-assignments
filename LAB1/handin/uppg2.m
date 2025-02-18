@@ -228,10 +228,10 @@ function L = solveStringSystem(ABsol,BCsol,CAsol,ra,rb,rc,a,b,c)
     [arcDistA, xArcA, yArcA] = getOuterArcDist(CA2,AB1,ra,a);
     [arcDistB, xArcB, yArcB] = getOuterArcDist(AB2,BC1,rb,b);
     [arcDistC, xArcC, yArcC] = getOuterArcDist(BC2,CA1,rc,c);
-
-    ABDist = norm([AB1(1) AB2(1)]-[AB1(2) AB2(2)]);
-    BCDist = norm([BC1(1) BC2(1)]-[BC1(2) BC2(2)]);
-    CADist = norm([CA1(1) CA2(1)]-[CA1(2) CA2(2)]);
+       
+    ABDist = norm(AB2-AB1);
+    BCDist = norm(BC2-BC1);
+    CADist = norm(CA2-CA1);
 
     L = ABDist + BCDist + CADist + arcDistA + arcDistB + arcDistC;
 
