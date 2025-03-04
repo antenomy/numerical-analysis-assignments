@@ -6,7 +6,7 @@ figure(1)
 matrix_size = height(A);
 b = zeros(matrix_size,1); 
 bel_index = round(matrix_size/6)*2 - 1;
-b(bel_index) = 1;
+b(bel_index) = 10;
 
 x = A \ b;
 
@@ -84,7 +84,7 @@ hold off
 
 T = zeros(4, 4);
 
-for iter = 1:2
+for iter = 1:1
     load(file{iter})
     
     tic;
