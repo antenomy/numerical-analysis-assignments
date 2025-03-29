@@ -28,7 +28,6 @@ b = X(:);
 [testQ , testR] = gramSchmidt(A);
 
 function x = leastSquares(A, b)
-    [m, n] = size(A);
     [Q, R] = qr(A, 0); % Second parameter indicates we want the reduced factorization, 
     %   which saves computing power since we onlt need Q to have the basis elements
     %   for the basis for the column space of A (n=2) rather than the entire space 
@@ -36,6 +35,7 @@ function x = leastSquares(A, b)
 
     x = R \ (Q') * b; %  Back substitution for QR variation of normal equations
     
+    %[m, n] = size(A);
     %R_hat = R(1:n,1:n);
     %d = (Q') * b;
     %d_hat = d(1:n);
