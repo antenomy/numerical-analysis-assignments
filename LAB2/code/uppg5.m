@@ -4,25 +4,57 @@ Iexact = 6.231467927023725;  % Ett noggrannt värde för I
 
 % Er kod här...
 
-% Current tests (on my laptop at least) show 7 to be maximum number with sub-30s evaluation time.
-process_time = 0;
-n = 1;
-NUM_SECONDS = 30;
-while (process_time < NUM_SECONDS)
-    tic;
-    disp(["Calculating for n: ", num2str(n)]);
-    I = trapets10d(n);
-    process_time = toc;
-    disp(["Result for n: ", num2str(I)]);
-    disp(["Process time:" , num2str(process_time)]);
-    n = n + 1;
+function evaluateTrapInt()
+    % Current tests (on my laptop at least) show 7 to be maximum number with sub-30s evaluation time.
+    process_time = 0;
+    n = 1;
+    NUM_SECONDS = 30;
+    while (process_time < NUM_SECONDS)
+        tic;
+        disp(["Calculating for n: ", num2str(n)]);
+        I = trapets10d(n);
+        process_time = toc;
+        fprintf('Result for n: %f\n', num2str(I));
+        disp(["Process time:" , num2str(process_time)]);
+        n = n + 1;
+    end
+    disp(["Final n: ", num2str(n-2)]);
 end
-disp(["Final n: ", num2str(n-2)]);
+
+
 
 
 %% 5b Monte-Carlo
+N = 10^2;
 
-% Er kod här...
+
+function I_matrix = monteCarlo(N)
+    
+    L = 1.2;
+
+    X = rand(N, 10)*L;
+
+    f = exp(prod(X, 2));
+    %for i=1:N
+        %disp(X(i,:))
+        %disp(prod(X(i,:)))
+        %disp(exp(prod(X(i,:))))
+    %end
+
+    cumulative = cumsum(f);
+
+    ii = (1:N)';
+
+
+    I_matrix = L^10 * (cumulative ./ ii);
+
+end
+
+N = 100;
+I_matrix = monteCarlo(100);
+for i=1:N
+    fprintf('%d: %s\n', i, I_matrix(i));
+end
 
 
 
