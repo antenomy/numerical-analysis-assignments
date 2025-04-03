@@ -4,13 +4,58 @@ h = 0.25; % Får ej ändras i koden nedan
 
 %% Linjär interpolation
 
-% Er kod här...
+function [coeffcicient_array] = linear_interpolation(x_array, y_array)
+    m = (y_arrray(2) - y_arrray(1)) / (x_array(2) - x_array(1));
+    k = y_array(1) - m * x_array(1);
+    coeffcicient_array = [m, k];
+end
 
 
 %% Kvadratisk interpolation
 
-% Er kod här...
+function [coefficient_array] = quadratic_interpolation(x_array, y_array)
 
+    n_matrix = zeros(3, 3);
+
+    for iteration = 1:length(y_array)
+        n_matrix(iteration, 1) = y_array(iteration);
+    end
+
+    for i = 2:length(y_array)
+        for j = 1:length(y_array)+1-i
+            n_matrix(j, i) = (n_matrix(j+1, i-1)-n_matrix(j, i-1))/(x_array(j+i-1)-x_array(j)); 
+        end
+    end
+
+    a = n_matrix(1, 3);
+    b = n_matrix(1, 3) * (-x_array(1)-x_array(2)) + n_matrix(1, 2);
+    c = n_matrix(1, 3) * (x_array(1)*x_array(2))  - n_matrix(1, 2) * x_array(1) + n_matrix(1, 1);
+
+    coefficient_array = [a, b, c];
+end
+
+[t,x,y,vx,vy] = kastbana(h);
+
+%coeff_linear = linear_interpolation()
+
+coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
+
+plot_x = 0:.01:100;
+plot_y = polyval(coeff_quadratic, plot_x);
+
+plot(x,y, "o", plot_x, plot_y);
+
+for i = 1:length(x)-2
+    if y(i) < y(i+1) && y(i+1) > y(i+2)
+        max_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
+        max_x = -max_coeff(2)/max_coeff(1);
+        max_y = polyval(max_coeff, max_x);
+        disp(max_x);
+        disp(max_y);
+        break
+    end
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
