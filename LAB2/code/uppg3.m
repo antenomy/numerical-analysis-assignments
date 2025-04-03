@@ -2,28 +2,71 @@ load dollarkurs.mat
 X = USDSEK;
 N = length(X);
 tt=(1:N)';
+b = X(:);
 
 
 
 %% 3a Linjär modell
 
+A_linear = [ones(N, 1), tt];
+[linear_coeffs_QR, cond_num_QR] = leastSquaresQR(A_linear, b);
+linear_model = linear_coeffs_QR(1) + linear_coeffs_QR(2) * tt;
 
-function [Q, R] = gramSchmidt(A)
-    [m, n] = size(A);
-    Q = zeros(m,m);
-    R = zeros(m,n);
-    for j=1:1:n
-        y = A(:,j);
-        for i=1:1:j-1
-            R(i,j) = dot(Q(:,i),A(:,j));
-            y = y - R(i,j)*Q(:,i);
-        end
-        R(j,j) = norm(y);
-        Q(:,j) = y/R(j,j);
-    end
+fprintf('Linear model:\ty = %f + %f*t\n', linear_coeffs_QR);
+fprintf('Mean squared error: %f\n', MSE(X, linear_model))
+
+plotSeries(X, tt, linear_model);
+
+
+%% 3b Normalekvationerna och konditionering
+
+A_linear = [ones(N, 1), tt];
+[linear_coeffs, cond_num] = leastSquares(A_linear, b);
+[linear_coeffs_QR, cond_num_QR] = leastSquaresQR(A_linear, b);
+disp(linear_coeffs);
+disp(linear_coeffs_QR);
+disp(cond_num);
+disp(cond_num_QR);
+
+
+%% 3c Linjär + periodisk modell
+
+L = 500;
+A_periodic = zeros(N, 4);
+for t = 1:N
+    A_periodic(t, :) = [1, t, sin(2*pi*t/L), cos(2*pi*t/L)];
 end
 
-%[testQ , testR] = gramSchmidt(A_linear);
+[periodic_coeffs, periodic_cond_num] = leastSquaresQR(A_periodic, b);
+
+periodic_model = periodic_coeffs(1)  ...
+    + periodic_coeffs(2) * tt ...
+    + periodic_coeffs(3) * sin(2*pi*tt/L) ...
+    + periodic_coeffs(4) * cos(2*pi*tt/L);
+
+fprintf('Periodic model:\ty = %f + %f*t + %f*sin(2*pi*t/L) + %f*cos(2*pi*t/L), L = 500\n', periodic_coeffs);
+fprintf('Mean squared error: %f\n', MSE(X, periodic_model))
+
+plotSeries(X, tt, periodic_model);
+
+
+
+%% 3d Icke-linjär modell
+
+
+
+nonlin_coeffs = gaussNewton(10, N, b);
+nonlin_model = nonlin_coeffs(1)  ...
+    + nonlin_coeffs(2) * tt ...
+    + nonlin_coeffs(3) * sin(2*pi*tt/nonlin_coeffs(5)) ...
+    + nonlin_coeffs(4) * cos(2*pi*tt/nonlin_coeffs(5));
+
+fprintf('Nonlinear model:\ty = %f + %f*t + %f*sin(2*pi*t/L) + %f*cos(2*pi*t/L), L = %f\n', nonlin_coeffs);
+fprintf('Mean squared error: %f\n', MSE(X, nonlin_model))
+
+plotSeries(X, tt, nonlin_model);
+
+% FUNCTIONS
 
 function [x, C] = leastSquares(A, b)
     ATA = (A')*A;
@@ -39,12 +82,6 @@ function [x, C] = leastSquaresQR(A, b)
 
     x = R \ (Q') * b; %  Back substitution for QR variation of normal equations
     C = cond(R);
-    %[m, n] = size(A);
-    %R_hat = R(1:n,1:n);
-    %d = (Q') * b;
-    %d_hat = d(1:n);
-    %x = R_hat \ d_hat;
-    
 end
 
 function plotSeries(X, tt, linear_model)
@@ -61,7 +98,6 @@ function plotSeries(X, tt, linear_model)
     ylabel('USD-SEK');
     hold off;
     waitfor(gcf);
-    % Er kod här...
 end
 
 function MSE = MSE(X, Y)
@@ -69,47 +105,26 @@ function MSE = MSE(X, Y)
     MSE = (1/N)*sum((X-Y).^2);
 end
 
-b = X(:);
-
-A_linear = [ones(N, 1), tt];
-
-L = 500;
-A_periodic = zeros(N, 4);
-for t = 1:N
-    A_periodic(t, :) = [1, t, sin(2*pi*t/L), cos(2*pi*t/L)];
+function r = func_r(x, N, b)
+    r = zeros(N, 1);
+    for t = 1:N
+        r(t) = x(1) + x(2)*t + x(3)*sin(2*pi*t/x(5)) + x(4)*cos(2*pi*t/x(5)) - b(t);
+    end
 end
 
+function Dr = derivative_r(x, N)
+    Dr = zeros(N, 5);
+    for t = 1:N
+        Dr(t, :) = [1, t, sin(2*pi*t/x(5)), cos(2*pi*t/x(5)), ...
+        (2*pi*t/(x(5)^2))*(x(4)*sin(2*pi*t/x(5))-x(3)*cos(2*pi*t/x(5)))];
+    end
+end
 
-
-%[linear_coeffs, cond_num] = leastSquares(A_linear, b);
-%[linear_coeffs_QR, cond_num_QR] = leastSquaresQR(A_linear, b);
-
-[periodic_coeffs, periodic_cond_num] = leastSquaresQR(A_periodic, b);
-
-%disp(linear_coeffs);
-%disp(linear_coeffs_QR);
-%disp(condition_num);
-%disp(condition_num_QR);
-
-%linear_model = linear_coeffs(1) + linear_coeffs(2) * tt;
-periodic_model = periodic_coeffs(1)  ...
-    + periodic_coeffs(2) * tt ...
-    + periodic_coeffs(3) * sin(2*pi*tt/L) ...
-    + periodic_coeffs(4) * cos(2*pi*tt/L);
-%plotSeries(X, tt, linear_model);
-plotSeries(X, tt, periodic_model);
-%fprintf('Linear model:\ty = %f + %f*t\n', linear_coeffs);
-%fprintf('Mean squared error: %f\n', MSE(X, linear_model))
-
-
-%% 3b Normalekvationerna och konditionering
-
-%% 3c Linjär + periodisk modell
-
-% Er kod här...
-
-
-%% 3d Icke-linjär modell
-
-% Er kod här...
-
+function x = gaussNewton(k, N, b)
+    x = [8, -0.002, 0.3, 0.4, 500]';
+    for i=1:k
+        A = derivative_r(x, N);
+        v = (A')*A \ -(A')*func_r(x, N, b);
+        x = x + v;
+    end
+end
