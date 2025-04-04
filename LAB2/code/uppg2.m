@@ -1,14 +1,15 @@
 %% Interpolation
-%% Interpolation
+
+
 
 h = 0.25; % Får ej ändras i koden nedan
 
 %% Linjär interpolation
 
-function [coeffcicient_array] = linear_interpolation(x_array, y_array)
+function [coefficient_array] = linear_interpolation(x_array, y_array)
     m = (y_arrray(2) - y_arrray(1)) / (x_array(2) - x_array(1));
     k = y_array(1) - m * x_array(1);
-    coeffcicient_array = [m, k];
+    coefficient_array = [m, k];
 end
 
 
@@ -35,6 +36,26 @@ function [coefficient_array] = quadratic_interpolation(x_array, y_array)
     coefficient_array = [a, b, c];
 end
 
+function [px,py] = piecewise_quadratic()
+    for i = 1:length(x)-2
+        piece_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
+
+    end
+end
+
+function [y] = homemade_polyval(poly_coeffs, x)
+    deg = length(poly_coeffs) - 1;
+    n = length(x);
+    y = zeros(n, 1);
+    for i=1:n
+        terms = zeros(deg, 1);
+        for j=deg:-1:1
+            terms(j) = poly_coeffs(j) * x(i)^j;
+        end
+        y(i) = sum(terms);
+    end
+end
+
 [t,x,y,vx,vy] = kastbana(h);
 
 %coeff_linear = linear_interpolation()
@@ -43,8 +64,9 @@ coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
 
 plot_x = 0:.01:100;
 plot_y = polyval(coeff_quadratic, plot_x);
+test_plot_y = homemade_polyval;
 
-plot(x,y, "o", plot_x, plot_y);
+plot(x,y, "b", plot_x, plot_y, "--r");
 
 for i = 1:length(x)-2
     if y(i) < y(i+1) && y(i+1) > y(i+2)
