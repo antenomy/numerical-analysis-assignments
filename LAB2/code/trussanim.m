@@ -12,7 +12,7 @@ M = moviein(n);
 for j=1:n
   xny = xnod + sin(j*dt)*y(1:2:end);
   yny = ynod + sin(j*dt)*y(2:2:end);
-  trussplot(xny,yny,bars);
+  trussplot(xny,yny,bars,'r');
   axis([min(xnod)-.5,max(xnod)+.5,0,max(ynod)+.5]);
   M(:,j) = getframe;
 end
