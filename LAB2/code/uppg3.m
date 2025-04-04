@@ -8,6 +8,8 @@ b = X(:);
 
 %% 3a Linjär modell
 
+figure(1)
+
 A_linear = [ones(N, 1), tt];
 [linear_coeffs_QR, cond_num_QR] = leastSquaresQR(A_linear, b);
 linear_model = linear_coeffs_QR(1) + linear_coeffs_QR(2) * tt;
@@ -34,6 +36,8 @@ disp(cond_num_QR);
 
 %% 3c Linjär + periodisk modell
 
+figure(2)
+
 L = 500;
 A_periodic = zeros(N, 4);
 for t = 1:N
@@ -56,6 +60,7 @@ plotSeries(X, tt, periodic_model);
 
 %% 3d Icke-linjär modell
 
+figure(3)
 
 
 nonlin_coeffs = gaussNewton(10, N, b);

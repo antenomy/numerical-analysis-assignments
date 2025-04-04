@@ -37,12 +37,6 @@ function [coefficient_array] = quadratic_interpolation(x_array, y_array)
     coefficient_array = [a, b, c];
 end
 
-% function [px,py] = piecewise_quadratic()
-%     for i = 1:length(x)-2
-%         piece_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
-
-%     end
-% end
 
 function [y] = homemade_polyval(poly_coeffs, x)
     deg = length(poly_coeffs) - 1;
@@ -60,14 +54,13 @@ end
 [t,x,y,vx,vy] = kastbana(h);
 [real_t,real_x,real_y,real_vx,real_vy] = kastbana(real_h);
 
-%coeff_linear = linear_interpolation()
-
-%coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
-
-%plot_x = 0:0.2:100;
-%plot_y = homemade_polyval(coeff_quadratic, plot_x);
-
-plot(x, y, "b")
+disp(size(x))
+disp(size(y))
+plot(x, y, 'bo-', 'MarkerFaceColor', 'none', 'MarkerEdgeColor', 'b')
+hold on;
+disp(size(real_x))
+disp(size(real_y))
+plot(real_x, real_y, '--g')
 hold on;
 
 
@@ -81,13 +74,8 @@ function [x_max, y_max] = calculate_max_x_quad(x, y)
     for i = 1:length(x)-2
         if y(i) <= y(i+1) && y(i+1) >= y(i+2) % Finds local maximum
             
-            
-            % max_x_quad = -max_coeff(2)/max_coeff(1);
-            % max_y_quad = homemade_polyval(max_coeff, max_x);
-            % disp(max_x);
-            % disp(max_y);
-
-            if mod(i, 2) == 0 % One interpolating polynomial to check
+    
+            if mod(i, 2) == 1 % One interpolating polynomial to check
                 max_coeff_quad = quadratic_interpolation(x(i-1:i+1), y(i-1:i+1));
                 x_max = calculate_max_x_quad_helper(max_coeff_quad);
                 y_max = homemade_polyval(max_coeff_quad, x_max);
@@ -200,28 +188,26 @@ fprintf('Max y: %f Max y error: %f \n\n', max_y_quad, max_y_quad_error);
 %disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
 fprintf('Down x: %f Down x error: %f \n\n', down_x_quad, down_x_quad_error);
 
+
+
 % Calculation of max_x, max_y, down_x Linear 
 
-
+% Finding max x, y
 function [x_max, y_max] = calculate_max_lin(x, y)
     n = length(x);
-    if y(1) > y(2)
-        x_max = x(1);
-        y_max = y(1);
-        return;
-    elseif y(n) > y(n-1)
-        x_max = x(n);
-        y_max = y(n);
-        return;
-    end
-    for i = 1:2:n-1
-        % Finding max x, y
-        if y(i) <= y(i+1) && y(i+1) >= y(i+2)
-            x_max = x(i+1);
-            y_max = y(i+1);
-            return;
+
+    i_save = 1;
+
+    for i = 1:n
+
+        if y(i_save) < y(i)
+            i_save = i;
         end
     end
+
+    x_max = x(i_save);
+    y_max = y(i_save);
+    return;
 end
 
 function down_x_lin = calculate_down_x_lin(x, y)
@@ -247,8 +233,8 @@ end
 [max_x_lin, max_y_lin] = calculate_max_lin(x, y);
 [max_x_lin_real, max_y_lin_real] = calculate_max_lin(real_x, real_y);
 
-max_x_lin_error = abs(max_x_lin - max_x_lin_real);
-max_y_lin_error = abs(max_y_lin - max_y_lin_real);
+max_x_lin_error = max_x_lin - max_x_lin_real;
+max_y_lin_error = max_y_lin - max_y_lin_real;
 
 down_x_lin = calculate_down_x_lin(x, y);
 down_x_lin_real = calculate_down_x_lin(real_x, real_y);
@@ -333,4 +319,3 @@ vy = U(:,4);
 
 end
 
-waitfor(gcf)
