@@ -1,20 +1,11 @@
 %% Assignment a)
 
+figure(1)
 
-function y = func1(x)
-    y = 2/(sqrt(pi))*exp(-x^2)
+% g(x) function
+function y = g_function(x)
+    y = 2/(sqrt(pi))*exp(-x.^2);
 end
-
-interval_start
-
-x = 1
-y = erf(x)
-
-plot()
-
-comparison_value = erf()
-
-
 
 function I = trapets(a, b, g, N)
     % a: Start of the interval
@@ -31,9 +22,35 @@ function I = trapets(a, b, g, N)
 end
 
 
+N_step = 50;
+N_range = N_step:N_step:500;
+x_values = [0.11, 0.32, 1.14];
 
-f = trapets(0, 1, @func1, N);
+error_array = zeros(3, length(N_range));
 
+
+% Error calculation for each N, and each x
+for i = 1:length(x_values)
+    for j = 1:length(error_array)
+        error_array(j, i) = abs(erf(x_values(i)) - trapets(0, x_values(i), @g_function, j*N_step));
+    end
+end
+
+% Plotting Code
+loglog(N_range, error_array(:, 1));
+xlabel('Number of Subintervals (N)');
+ylabel('Error p');
+grid on;
+hold on;
+loglog(N_range, error_array(:, 2));
+hold on;
+loglog(N_range, error_array(:, 3));
+hold off;
+
+
+% x = 0.11 : C = 
+% x = 0.32 : C = 
+% x = 1.14 : C = 
 
 
 %% Assignment b)
