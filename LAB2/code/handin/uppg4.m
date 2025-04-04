@@ -2,26 +2,6 @@
 
 figure(1)
 
-% g(x) function
-function y = g_function(x)
-    y = 2/(sqrt(pi))*exp(-x.^2);
-end
-
-function I = trapets(a, b, g, N)
-    % a: Start of the interval
-    % b: End of the interval
-    % g: Function handle to integrate
-    % N: Number of subintervals
-
-    step_length = (b - a) / N;
-    x = linspace(a, b, N + 1);
-    y = g(x);
-
-    I = step_length * (sum(y) - (y(1) + y(end)) / 2);
-
-end
-
-
 N_step = 50;
 N_range = N_step:N_step:500;
 x_values = [0.11, 0.32, 1.14];
@@ -71,10 +51,6 @@ N_b = [50, 100, 200, 400, 800];
 
 display_array = zeros(2, length(N_b));
 
-function degree = precision_division(a, b, N)
-    degree = (trapets(a, b, @g_function,  N) - trapets(a, b, @g_function,  2*N))/(trapets(a, b, @g_function,  2*N) - trapets(a, b, @g_function,  4*N));
-end
-
 for i = 1:length(N_b)
     display_array(1, i) = precision_division(0, x_b, N_b(i));
     display_array(2, i) = log2(display_array(1, i));
@@ -115,4 +91,27 @@ hold off;
 
 
 
+% g(x) Function
+function y = g_function(x)
+    y = 2/(sqrt(pi))*exp(-x.^2);
+end
 
+% Trapezoid Rule Function
+function I = trapets(a, b, g, N)
+    % a: Start of the interval
+    % b: End of the interval
+    % g: Function handle to integrate
+    % N: Number of subintervals
+
+    step_length = (b - a) / N;
+    x = linspace(a, b, N + 1);
+    y = g(x);
+
+    I = step_length * (sum(y) - (y(1) + y(end)) / 2);
+
+end
+
+% Degree of Precision Function
+function degree = precision_division(a, b, N)
+    degree = (trapets(a, b, @g_function,  N) - trapets(a, b, @g_function,  2*N))/(trapets(a, b, @g_function,  2*N) - trapets(a, b, @g_function,  4*N));
+end
