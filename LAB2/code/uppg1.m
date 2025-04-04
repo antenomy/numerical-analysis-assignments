@@ -39,7 +39,7 @@ end
 
 
 
-%% 1c -- Ber�kning av st�rsta och minsta egenv�rdena
+%% 1c -- Beräkning av största och minsta egenvärdena
 
 file = {'eiffel1.mat', 'eiffel2.mat', 'eiffel3.mat', 'eiffel4.mat'};
 
