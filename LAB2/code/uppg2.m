@@ -77,10 +77,10 @@ function x_max_help = calculate_max_x_quad_helper(coeff)
     x_max_help = -coeff(2)/(2*coeff(1));
 end
 
-function x_max = calculate_max_x_quad(x, y)
+function [x_max, y_max] = calculate_max_x_quad(x, y)
     for i = 1:length(x)-2
-        if y(i) <= y(i+1) && y(i+1) >= y(i+2)
-            max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
+        if y(i) <= y(i+1) && y(i+1) >= y(i+2) % Finds local maximum
+            
             
             % max_x_quad = -max_coeff(2)/max_coeff(1);
             % max_y_quad = homemade_polyval(max_coeff, max_x);
@@ -88,17 +88,52 @@ function x_max = calculate_max_x_quad(x, y)
             % disp(max_y);
 
             if mod(i, 2) == 0 % One interpolating polynomial to check
+                max_coeff_quad = quadratic_interpolation(x(i-1:i+1), y(i-1:i+1));
                 x_max = calculate_max_x_quad_helper(max_coeff_quad);
+                y_max = homemade_polyval(max_coeff_quad, x_max);
+
+                plot_x = 0:0.2:100;
+                plot_y = homemade_polyval(max_coeff_quad, plot_x);
+                plot(plot_x, plot_y, "--r");
+                hold on;
+                grid on;
                 return;
             else % Two interpolating polynomials to check
+                max_coeff_quad_1 = quadratic_interpolation(x(i-2:i), y(i-2:i));
+                max_coeff_quad_2 = quadratic_interpolation(x(i:i+2), y(i:i+2));
 
+                plot_x = 0:0.2:100;
+                plot_y = homemade_polyval(max_coeff_quad_1, plot_x);
+                plot(plot_x, plot_y, "--r");
+                hold on;
+                plot_y = homemade_polyval(max_coeff_quad_2, plot_x);
+                
+                plot(plot_x, plot_y, "--r");
+                grid on;
+
+                x_max_1 = calculate_max_x_quad_helper(max_coeff_quad_1);
+                x_max_2 = calculate_max_x_quad_helper(max_coeff_quad_2);
+
+                in_boundary_1 = (x_max_1 <= x(i-2) && x_max_1 >= x(i)) || (x_max_1 >= x(i-2) && x_max_1 <= x(i));
+                in_boundary_2 = (x_max_2 <= x(i) && x_max_2 >= x(i+2)) || (x_max_2 >= x(i) && x_max_2 <= x(i+2));
+                
+                if in_boundary_1 && in_boundary_2
+                    x_max = max(x_max_1, x_max_2);
+                elseif in_boundary_1
+                    x_max = x_max_1;
+                elseif in_boundary_2
+                    x_max = x_max_2;
+                else
+                    x_max = x(i);
+                end
+                y_max = y(i);
                 return;
             end
-            
-            x_max = 0;
-            return;
         end
     end
+    x_max = 0;
+    y_max = 0;
+    return;
 end
 
 
@@ -116,12 +151,7 @@ function down_x_quad = calculate_down_x_quad(x, y)
             return;
         elseif y(i)*y(i+2) < 0
             down_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
-            plot_x = 0:0.2:100;
-            plot_y = homemade_polyval(down_coeff_quad, plot_x);
-            plot(plot_x, plot_y, "--r");
-            hold on;
-            grid on;
-
+            
             down_x_quad_array = quadratic_formula(down_coeff_quad);
 
             if (down_x_quad_array(1) <= x(i) && down_x_quad_array(1) >= x(i+2)) || (down_x_quad_array(1) >= x(i) && down_x_quad_array(1) <= x(i+2))
@@ -152,8 +182,11 @@ function x_array = quadratic_formula(coeff_array)
     x_array(2) = (-b + -1 * sqrt(discriminant)) / (2*a);
 end
 
-max_x_quad = calculate_max_x_quad(x,y);
-max_x_quad_real = calculate_max_x_quad(real_x,real_y);
+[max_x_quad, max_y_quad] = calculate_max_x_quad(x,y);
+[max_x_quad_real, max_y_quad_real] = calculate_max_x_quad(real_x,real_y);
+
+max_x_quad_error = abs(max_x_quad - max_x_quad_real);
+max_y_quad_error = abs(max_y_quad - max_y_quad_real);
 
 down_x_quad = calculate_down_x_quad(x, y);
 down_x_quad_real = calculate_down_x_quad(real_x, real_y);
@@ -161,23 +194,33 @@ down_x_quad_real = calculate_down_x_quad(real_x, real_y);
 down_x_quad_error = abs(down_x_quad - down_x_quad_real);
 
 disp("Quadratic Interpolation")
-%disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
+fprintf('Max x: %f Max x error: %f \n', max_x_quad, max_x_quad_error);
+fprintf('Max y: %f Max y error: %f \n\n', max_y_quad, max_y_quad_error);
+
 %disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
 fprintf('Down x: %f Down x error: %f \n\n', down_x_quad, down_x_quad_error);
 
 % Calculation of max_x, max_y, down_x Linear 
 
-for i = 1:2:length(x)-2
 
-    % Finding max x, y
-    if y(i) <= y(i+1) && y(i+1) >= y(i+2)
-        % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
-
-        max_x_lin = x(i+1);
-        max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
-
-        max_y_lin = y(i+1);
-        max_y_error_lin = ;
+function [x_max, y_max] = calculate_max_lin(x, y)
+    n = length(x);
+    if y(1) > y(2)
+        x_max = x(1);
+        y_max = y(1);
+        return;
+    elseif y(n) > y(n-1)
+        x_max = x(n);
+        y_max = y(n);
+        return;
+    end
+    for i = 1:2:n-1
+        % Finding max x, y
+        if y(i) <= y(i+1) && y(i+1) >= y(i+2)
+            x_max = x(i+1);
+            y_max = y(i+1);
+            return;
+        end
     end
 end
 
@@ -201,14 +244,20 @@ function down_x_lin = calculate_down_x_lin(x, y)
     return;
 end
 
+[max_x_lin, max_y_lin] = calculate_max_lin(x, y);
+[max_x_lin_real, max_y_lin_real] = calculate_max_lin(real_x, real_y);
+
+max_x_lin_error = abs(max_x_lin - max_x_lin_real);
+max_y_lin_error = abs(max_y_lin - max_y_lin_real);
+
 down_x_lin = calculate_down_x_lin(x, y);
 down_x_lin_real = calculate_down_x_lin(real_x, real_y);
 
 down_x_error_lin = abs(down_x_lin - down_x_lin_real);
 
 disp("Linear Interpolation")
-%disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
-%disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
+fprintf('Max x: %f Max x error: %f \n', max_x_lin, max_x_lin_error);
+fprintf('Max y: %f Max y error: %f \n\n', max_y_lin, max_y_lin_error);
 fprintf('Down x: %f Down x error: %f \n\n', down_x_lin, down_x_error_lin);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -284,3 +333,4 @@ vy = U(:,4);
 
 end
 
+waitfor(gcf)
