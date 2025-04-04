@@ -73,20 +73,34 @@ hold on;
 
 % Calculation of max_x, max_y, down_x Quadratic 
 
-% for i = 1:length(x)-2
-%     if y(i) < y(i+1) && y(i+1) > y(i+2)
-%         max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
-%         max_x_quad = -max_coeff(2)/max_coeff(1);
-%         max_y_quad = homemade_polyval(max_coeff, max_x);
-%         disp(max_x);
-%         disp(max_y);
-%         break
-%     end
+function x_max_help = calculate_max_x_quad_helper(coeff)
+    x_max_help = -coeff(2)/(2*coeff(1));
+end
 
-%     if y(i) == 0
-%         down_x_quad = 
-%     end
-% end
+function x_max = calculate_max_x_quad(x, y)
+    for i = 1:length(x)-2
+        if y(i) <= y(i+1) && y(i+1) >= y(i+2)
+            max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
+            
+            % max_x_quad = -max_coeff(2)/max_coeff(1);
+            % max_y_quad = homemade_polyval(max_coeff, max_x);
+            % disp(max_x);
+            % disp(max_y);
+
+            if mod(i, 2) == 0 % One interpolating polynomial to check
+                x_max = calculate_max_x_quad_helper(max_coeff_quad);
+                return;
+            else % Two interpolating polynomials to check
+
+                return;
+            end
+            
+            x_max = 0;
+            return;
+        end
+    end
+end
+
 
 function down_x_quad = calculate_down_x_quad(x, y)
     for i = 1:2:length(x)-2
@@ -138,31 +152,34 @@ function x_array = quadratic_formula(coeff_array)
     x_array(2) = (-b + -1 * sqrt(discriminant)) / (2*a);
 end
 
+max_x_quad = calculate_max_x_quad(x,y);
+max_x_quad_real = calculate_max_x_quad(real_x,real_y);
+
 down_x_quad = calculate_down_x_quad(x, y);
 down_x_quad_real = calculate_down_x_quad(real_x, real_y);
 
-down_x_error_quad = abs(down_x_quad - down_x_quad_real);
+down_x_quad_error = abs(down_x_quad - down_x_quad_real);
 
 disp("Quadratic Interpolation")
 %disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
 %disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
-fprintf('Down x: %f Down x error: %f \n\n', down_x_quad, down_x_error_quad);
+fprintf('Down x: %f Down x error: %f \n\n', down_x_quad, down_x_quad_error);
 
 % Calculation of max_x, max_y, down_x Linear 
 
-% for i = 1:length(x)-2
+for i = 1:2:length(x)-2
 
-%     % Finding max x, y
-%     if y(i) <= y(i+1) && y(i+1) >= y(i+2)
-%         % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
+    % Finding max x, y
+    if y(i) <= y(i+1) && y(i+1) >= y(i+2)
+        % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
 
-%         max_x_lin = x(i+1);
-%         max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
+        max_x_lin = x(i+1);
+        max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
 
-%         max_y_lin = y(i+1);
-%         max_y_error_lin = ;
-%     end
-% end
+        max_y_lin = y(i+1);
+        max_y_error_lin = ;
+    end
+end
 
 function down_x_lin = calculate_down_x_lin(x, y)
     for i = 1:length(x)-1
