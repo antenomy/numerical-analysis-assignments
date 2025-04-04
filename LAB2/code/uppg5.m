@@ -2,25 +2,32 @@ Iexact = 6.231467927023725;  % Ett noggrannt värde för I
 
 %% 5a Trapetsregeln i 10 dimensioner
 
-% Er kod här...
 
-function evaluateTrapInt()
-    % Current tests (on my laptop at least) show 7 to be maximum number with sub-30s evaluation time.
-    process_time = 0;
-    n = 1;
-    NUM_SECONDS = 30;
-    while (process_time < NUM_SECONDS)
-        tic;
-        disp(["Calculating for n: ", num2str(n)]);
-        I = trapets10d(n);
-        process_time = toc;
-        fprintf('Result for n: %f\n', num2str(I));
-        disp(["Process time:" , num2str(process_time)]);
-        n = n + 1;
+% Current tests (on my laptop at least) show 7 to be maximum number with sub-30s evaluation time.
+process_time = 0;
+n = 1;
+NUM_SECONDS = 30;
+while (process_time < NUM_SECONDS)
+    tic;
+    I = trapets10d(n);
+    process_time = toc;
+    if process_time > 30
+        fprintf('Process time for n=%f too long, t = %f', n, process_time);
+        break
     end
-    disp(["Final n: ", num2str(n-2)]);
+    n = n + 1;
 end
+n=8;
+n = n - 1; % Get the last n that was sub 30 seconds
 
+tic;
+disp(["Calculating for n: ", num2str(n)]);
+I = trapets10d(n);
+process_time = toc;
+fprintf('Result for n: %f\n', I);
+fprintf('Process time: %f\n', process_time);
+error = I - 6.231467927023725;
+fprintf('Error: %f\n', error);
 
 
 
@@ -28,7 +35,7 @@ end
 N = 10^2;
 
 
-function I_matrix = monteCarlo(N)
+function I_array = monteCarlo(N)
     
     L = 1.2;
 
@@ -46,16 +53,38 @@ function I_matrix = monteCarlo(N)
     ii = (1:N)';
 
 
-    I_matrix = L^10 * (cumulative ./ ii);
-
+    I_array = L^10 * (cumulative ./ ii);
 end
 
-N = 100;
-I_matrix = monteCarlo(100);
-for i=1:N
-    fprintf('%d: %s\n', i, I_matrix(i));
-end
+%function y = MC_helper(N)
+%   y = sum(monteCarlo(N));
+%end
 
+N = 10e6;
+N_array = 1:N;
+
+
+
+
+%I_matrix = monteCarlo(100);
+%for i=1:N
+%    fprintf('%d: %s\n', i, I_matrix(i));
+%end
+
+for i=1:5
+    tic;
+    MC_array = monteCarlo(N);
+    time=toc;
+
+    Error_array = abs(MC_array-6.231467927023725);
+    fprintf('Process time for round %f: %f\n', i, time);
+    figure(1);
+    loglog(N_array, MC_array);
+    hold on;
+    figure(2);
+    loglog(N_array, Error_array);
+    hold on;
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
