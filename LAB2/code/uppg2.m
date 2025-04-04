@@ -62,13 +62,14 @@ end
 
 %coeff_linear = linear_interpolation()
 
-coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
+%coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
 
-plot_x = 0:0.2:100;
-plot_y = homemade_polyval(coeff_quadratic, plot_x);
+%plot_x = 0:0.2:100;
+%plot_y = homemade_polyval(coeff_quadratic, plot_x);
 
-plot(x,y, "b", plot_x, plot_y, "--r");
+plot(x, y, "b")
 hold on;
+
 
 % Calculation of max_x, max_y, down_x Quadratic 
 
@@ -86,6 +87,53 @@ hold on;
 %         down_x_quad = 
 %     end
 % end
+
+function down_x_quad = calculate_down_x_quad(x, y)
+    for i = 1:2:length(x)-2
+        % Finding down x
+        if y(i) == 0 
+            down_x_quad = x(i);
+            return;
+        elseif y(i + 1) == 0 
+            down_x_quad = x(i+1);
+            return;
+        elseif y(i + 2) == 0 
+            down_x_quad = x(i+2);
+            return;
+        elseif y(i)*y(i+2) < 0
+            down_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
+            plot_x = 0:0.2:100;
+            plot_y = homemade_polyval(down_coeff_quad, plot_x);
+            plot(plot_x, plot_y, "--r");
+            hold on;
+            grid on;
+
+            down_x_quad = quadratic_formula(down_coeff_quad, 1);
+            return;
+        end
+    end
+
+    down_x_quad = 0;
+    return;
+end
+
+function x = quadratic_formula(coeff_array, sign)
+    if coeff_array(2)^2-(4*coeff_array(3)*coeff_array(1)) >= 0
+        x = ((-1*coeff_array(2)) + (sign * (sqrt(coeff_array(2)^2-(4*coeff_array(3)*coeff_array(1))))))/(2*coeff_array(1));
+    else
+        x = 0;
+    end
+end
+
+down_x_quad = calculate_down_x_quad(x, y);
+down_x_quad_real = calculate_down_x_quad(real_x, real_y);
+
+down_x_error_quad = abs(down_x_quad - down_x_quad_real);
+
+disp("Quadratic Interpolation")
+%disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
+%disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
+fprintf('Down x: %f Down x error: %f \n\n', down_x_quad, down_x_error_quad);
 
 % Calculation of max_x, max_y, down_x Linear 
 
@@ -131,7 +179,7 @@ down_x_error_lin = abs(down_x_lin - down_x_lin_real);
 disp("Linear Interpolation")
 %disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
 %disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
-fprintf('Down x: %f Down x error: %f ', down_x_lin, down_x_error_lin);
+fprintf('Down x: %f Down x error: %f \n\n', down_x_lin, down_x_error_lin);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
