@@ -104,6 +104,7 @@ for i = 1:length(x)-2
     end
 end
 
+function 
 for i = 1:length(x)-1
     % Finding down x
     if y(i) == 0 
@@ -112,7 +113,8 @@ for i = 1:length(x)-1
         down_x_lin = x(i+1);
     elseif (y(i) < 0 && y(i+1) > 0) || (y(i) > 0 && y(i+1) < 0)
         down_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
-        down_x_lin = x(i);
+        down_x_lin = -down_coeff_lin(2)/down_coeff_lin(1);
+        down_x_error_lin = down_x_lin
     end
 end
 
