@@ -28,10 +28,9 @@ A_linear = [ones(N, 1), tt];
 
 fprintf('Condition number (Normal): %s\n', cond_num);
 fprintf('Condition number (QR): %s\n', cond_num_QR);
-disp(linear_coeffs);
-disp(linear_coeffs_QR);
-disp(cond_num);
-disp(cond_num_QR);
+
+fprintf('Linear model (Normal):\ty = %f + %f*t\n', linear_coeffs);
+fprintf('Linear model (QR):\ty = %f + %f*t\n', linear_coeffs_QR);
 
 
 %% 3c Linjär + periodisk modell
