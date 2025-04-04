@@ -3,12 +3,12 @@
 
 
 h = 0.25; % Får ej ändras i koden nedan
-real_h = 0.1;
+real_h = 10e-5;
 
 %% Linjär interpolation
 
 function [coefficient_array] = linear_interpolation(x_array, y_array)
-    m = (y_arrray(2) - y_arrray(1)) / (x_array(2) - x_array(1));
+    m = (y_array(2) - y_array(1)) / (x_array(2) - x_array(1));
     k = y_array(1) - m * x_array(1);
     coefficient_array = [m, k];
 end
@@ -68,8 +68,7 @@ plot_x = 0:0.2:100;
 plot_y = homemade_polyval(coeff_quadratic, plot_x);
 
 plot(x,y, "b", plot_x, plot_y, "--r");
-waitfor(gcf);
-
+hold on;
 
 % Calculation of max_x, max_y, down_x Quadratic 
 
@@ -119,17 +118,20 @@ function down_x_lin = calculate_down_x_lin(x, y)
             return;
         end
     end
+
+    down_x_lin = 0;
+    return;
 end
 
 down_x_lin = calculate_down_x_lin(x, y);
-down_x_lin_real = calculate_down_x_lin(x_real, y_real);
+down_x_lin_real = calculate_down_x_lin(real_x, real_y);
 
 down_x_error_lin = abs(down_x_lin - down_x_lin_real);
 
 disp("Linear Interpolation")
-disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
-disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
-disp("Down x: ", down_x_lin, "  Down x error:", down_x_error_lin);
+%disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
+%disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
+fprintf('Down x: %f Down x error: %f ', down_x_lin, down_x_error_lin);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

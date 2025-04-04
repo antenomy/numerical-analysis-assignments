@@ -23,6 +23,9 @@ plotSeries(X, tt, linear_model);
 A_linear = [ones(N, 1), tt];
 [linear_coeffs, cond_num] = leastSquares(A_linear, b);
 [linear_coeffs_QR, cond_num_QR] = leastSquaresQR(A_linear, b);
+
+fprintf('Condition number (Normal): %s\n', cond_num);
+fprintf('Condition number (QR): %s\n', cond_num_QR);
 disp(linear_coeffs);
 disp(linear_coeffs_QR);
 disp(cond_num);
