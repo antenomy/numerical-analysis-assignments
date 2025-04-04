@@ -108,8 +108,14 @@ function down_x_quad = calculate_down_x_quad(x, y)
             hold on;
             grid on;
 
-            down_x_quad = quadratic_formula(down_coeff_quad, 1);
+            down_x_quad_array = quadratic_formula(down_coeff_quad);
+
+            if (down_x_quad_array(1) <= x(i) && down_x_quad_array(1) >= x(i+2)) || (down_x_quad_array(1) >= x(i) && down_x_quad_array(1) <= x(i+2))
+                down_x_quad = down_x_quad_array(1);
+            elseif (down_x_quad_array(2) <= x(i) && down_x_quad_array(2) >= x(i+2)) || (down_x_quad_array(2) >= x(i) && down_x_quad_array(2) <= x(i+2))
+                down_x_quad = down_x_quad_array(2);
             return;
+            end
         end
     end
 
@@ -117,12 +123,19 @@ function down_x_quad = calculate_down_x_quad(x, y)
     return;
 end
 
-function x = quadratic_formula(coeff_array, sign)
-    if coeff_array(2)^2-(4*coeff_array(3)*coeff_array(1)) >= 0
-        x = ((-1*coeff_array(2)) + (sign * (sqrt(coeff_array(2)^2-(4*coeff_array(3)*coeff_array(1))))))/(2*coeff_array(1));
-    else
-        x = 0;
-    end
+function x_array = quadratic_formula(coeff_array)
+    x_array = zeros(1, 2);
+    % Extract coefficients
+    a = coeff_array(1);
+    b = coeff_array(2);
+    c = coeff_array(3);
+    
+    % Compute discriminant
+    discriminant = b^2 - 4*a*c;
+    
+    % Compute root(s)
+    x_array(1) = (-b +  1 * sqrt(discriminant)) / (2*a);
+    x_array(2) = (-b + -1 * sqrt(discriminant)) / (2*a);
 end
 
 down_x_quad = calculate_down_x_quad(x, y);
