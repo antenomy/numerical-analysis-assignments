@@ -47,13 +47,13 @@ end
 function [y] = homemade_polyval(poly_coeffs, x)
     deg = length(poly_coeffs) - 1;
     n = length(x);
-    y = zeros(n, 1);
+    y = zeros(1, n);
     for i=1:n
-        terms = zeros(deg, 1);
-        for j=deg:-1:1
-            terms(j) = poly_coeffs(j) * x(i)^j;
+        terms = zeros(deg+1, 1);
+        for j=1:deg+1
+            terms(j) = poly_coeffs(j) * x(i)^(deg-j+1);
         end
-        y(i) = sum(terms);
+        y(1,i) = sum(terms);
     end
 end
 
@@ -64,11 +64,11 @@ end
 
 coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
 
-plot_x = 0:h:100;
-plot_y = polyval(coeff_quadratic, plot_x);
-test_plot_y = homemade_polyval;
+plot_x = 0:0.2:100;
+plot_y = homemade_polyval(coeff_quadratic, plot_x);
 
 plot(x,y, "b", plot_x, plot_y, "--r");
+waitfor(gcf);
 
 
 % Calculation of max_x, max_y, down_x Quadratic 
@@ -77,7 +77,7 @@ for i = 1:length(x)-2
     if y(i) < y(i+1) && y(i+1) > y(i+2)
         max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
         max_x_quad = -max_coeff(2)/max_coeff(1);
-        max_y_quad = polyval(max_coeff, max_x);
+        max_y_quad = homemade_polyval(max_coeff, max_x);
         disp(max_x);
         disp(max_y);
         break
