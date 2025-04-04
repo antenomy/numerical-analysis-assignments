@@ -104,7 +104,7 @@ waitfor(gcf);
 %     end
 % end
 
-function down_x_lin = calculate_down_x_lin(x)
+function down_x_lin = calculate_down_x_lin(x, y)
     for i = 1:length(x)-1
         % Finding down x
         if y(i) == 0 
@@ -121,8 +121,8 @@ function down_x_lin = calculate_down_x_lin(x)
     end
 end
 
-down_x_lin = calculate_down_x_lin(x);
-down_x_lin_real = calculate_down_x_lin(x_real);
+down_x_lin = calculate_down_x_lin(x, y);
+down_x_lin_real = calculate_down_x_lin(x_real, y_real);
 
 down_x_error_lin = abs(down_x_lin - down_x_lin_real);
 
