@@ -3,6 +3,7 @@
 
 
 h = 0.25; % Får ej ändras i koden nedan
+real_h = 10^-5;
 
 %% Linjär interpolation
 
@@ -57,28 +58,68 @@ function [y] = homemade_polyval(poly_coeffs, x)
 end
 
 [t,x,y,vx,vy] = kastbana(h);
+[real_t,real_x,real_y,real_vx,real_vy] = kastbana(real_h);
 
 %coeff_linear = linear_interpolation()
 
 coeff_quadratic = quadratic_interpolation(x(10:12), y(10:12));
 
-plot_x = 0:.01:100;
+plot_x = 0:h:100;
 plot_y = polyval(coeff_quadratic, plot_x);
 test_plot_y = homemade_polyval;
 
 plot(x,y, "b", plot_x, plot_y, "--r");
 
+
+% Calculation of max_x, max_y, down_x Quadratic 
+
 for i = 1:length(x)-2
     if y(i) < y(i+1) && y(i+1) > y(i+2)
-        max_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
-        max_x = -max_coeff(2)/max_coeff(1);
-        max_y = polyval(max_coeff, max_x);
+        max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
+        max_x_quad = -max_coeff(2)/max_coeff(1);
+        max_y_quad = polyval(max_coeff, max_x);
         disp(max_x);
         disp(max_y);
         break
     end
 
+    if y(i) == 0
+        down_x_quad = 
+    end
 end
+
+% Calculation of max_x, max_y, down_x Linear 
+
+for i = 1:length(x)-2
+
+    % Finding max x, y
+    if y(i) <= y(i+1) && y(i+1) >= y(i+2)
+        % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
+
+        max_x_lin = x(i+1);
+        max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
+
+        max_y_lin = y(i+1);
+        max_y_error_lin = ;
+    end
+end
+
+for i = 1:length(x)-1
+    % Finding down x
+    if y(i) == 0 
+        down_x_lin = x(i);
+    elseif y(i + 1) == 0 
+        down_x_lin = x(i+1);
+    elseif (y(i) < 0 && y(i+1) > 0) || (y(i) > 0 && y(i+1) < 0)
+        down_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
+        down_x_lin = x(i);
+    end
+end
+
+disp("Linear Interpolation")
+disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
+disp("Max y: ", max_y_lin, "  Max y error:", max_y_error_lin);
+disp("Down x: ", down_x_lin, "  Down x error:", down_x_error_lin);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
