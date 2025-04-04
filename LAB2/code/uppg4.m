@@ -46,11 +46,11 @@ loglog(N_range, error_array(:, 2));
 hold on;
 loglog(N_range, error_array(:, 3));
 hold off;
+G
 
-
-% x = 0.11 : C = 
-% x = 0.32 : C = 
-% x = 1.14 : C = 
+% x = 0.11 : C = 0.1813049167
+% x = 0.32 : C = 0.1349920833
+% x = 1.14 : C = 0.08199691667
 
 
 %% Assignment b)
