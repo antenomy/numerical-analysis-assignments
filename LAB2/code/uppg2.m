@@ -3,7 +3,7 @@
 
 
 h = 0.25; % Får ej ändras i koden nedan
-real_h = 10^-5;
+real_h = 0.1;
 
 %% Linjär interpolation
 
@@ -37,12 +37,12 @@ function [coefficient_array] = quadratic_interpolation(x_array, y_array)
     coefficient_array = [a, b, c];
 end
 
-function [px,py] = piecewise_quadratic()
-    for i = 1:length(x)-2
-        piece_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
+% function [px,py] = piecewise_quadratic()
+%     for i = 1:length(x)-2
+%         piece_coeff = quadratic_interpolation(x(i:i+2), y(i:i+2));
 
-    end
-end
+%     end
+% end
 
 function [y] = homemade_polyval(poly_coeffs, x)
     deg = length(poly_coeffs) - 1;
@@ -73,50 +73,58 @@ waitfor(gcf);
 
 % Calculation of max_x, max_y, down_x Quadratic 
 
-for i = 1:length(x)-2
-    if y(i) < y(i+1) && y(i+1) > y(i+2)
-        max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
-        max_x_quad = -max_coeff(2)/max_coeff(1);
-        max_y_quad = homemade_polyval(max_coeff, max_x);
-        disp(max_x);
-        disp(max_y);
-        break
-    end
+% for i = 1:length(x)-2
+%     if y(i) < y(i+1) && y(i+1) > y(i+2)
+%         max_coeff_quad = quadratic_interpolation(x(i:i+2), y(i:i+2));
+%         max_x_quad = -max_coeff(2)/max_coeff(1);
+%         max_y_quad = homemade_polyval(max_coeff, max_x);
+%         disp(max_x);
+%         disp(max_y);
+%         break
+%     end
 
-    if y(i) == 0
-        down_x_quad = 
-    end
-end
+%     if y(i) == 0
+%         down_x_quad = 
+%     end
+% end
 
 % Calculation of max_x, max_y, down_x Linear 
 
-for i = 1:length(x)-2
+% for i = 1:length(x)-2
 
-    % Finding max x, y
-    if y(i) <= y(i+1) && y(i+1) >= y(i+2)
-        % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
+%     % Finding max x, y
+%     if y(i) <= y(i+1) && y(i+1) >= y(i+2)
+%         % max_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
 
-        max_x_lin = x(i+1);
-        max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
+%         max_x_lin = x(i+1);
+%         max_x_error_lin = 0; % Need to find the two points around max_x_lin and evaluate the line at that x
 
-        max_y_lin = y(i+1);
-        max_y_error_lin = ;
+%         max_y_lin = y(i+1);
+%         max_y_error_lin = ;
+%     end
+% end
+
+function down_x_lin = calculate_down_x_lin(x)
+    for i = 1:length(x)-1
+        % Finding down x
+        if y(i) == 0 
+            down_x_lin = x(i);
+            return;
+        elseif y(i + 1) == 0 
+            down_x_lin = x(i+1);
+            return;
+        elseif y(i)*y(i+1) < 0
+            down_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
+            down_x_lin = -down_coeff_lin(2)/down_coeff_lin(1);
+            return;
+        end
     end
 end
 
-function 
-for i = 1:length(x)-1
-    % Finding down x
-    if y(i) == 0 
-        down_x_lin = x(i);
-    elseif y(i + 1) == 0 
-        down_x_lin = x(i+1);
-    elseif (y(i) < 0 && y(i+1) > 0) || (y(i) > 0 && y(i+1) < 0)
-        down_coeff_lin = linear_interpolation(x(i:i+1), y(i:i+1));
-        down_x_lin = -down_coeff_lin(2)/down_coeff_lin(1);
-        down_x_error_lin = down_x_lin
-    end
-end
+down_x_lin = calculate_down_x_lin(x);
+down_x_lin_real = calculate_down_x_lin(x_real);
+
+down_x_error_lin = abs(down_x_lin - down_x_lin_real);
 
 disp("Linear Interpolation")
 disp("Max x: ", max_x_lin, "  Max x error:", max_x_error_lin);
