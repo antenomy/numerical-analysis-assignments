@@ -3,14 +3,23 @@ format long
 omega = 19;
 
 S0 = @(r) cos(24*sqrt(r)).*exp(-900*r);
-v_c = @(x, y, alpha, omega) cos(omega*(x*cos(alpha) + y*sin(alpha)));
 
 aa = 1;
 xs  = 0.45;
 ys  = 0.2;
 S = @(x,y) aa*S0((x-xs).^2+(y-ys).^2);
 
+v_c = @(x, y, alpha, omega) cos(omega.*(x.*cos(alpha) + y.*sin(alpha)));
+v_s = @(x, y, alpha, omega) sin(omega.*(x*cos(alpha) + y*sin(alpha)));
+
+
 nuIntegrand = @(x,y, omega) S0(x.^2+y.^2).*cos(omega*x);
+eta = trapInt2D(200, nuIntegrand, omega);
+[B,Sol] = hhsolver(omega,S,400); 
+
+
+noiselevel = 0;
+gnoise = B.un+max(abs(B.un)).*randn(size(B.un)).*noiselevel;
 
 function I = trapInt2D(n, func, omega)
     a = -2;
@@ -67,8 +76,9 @@ function Dr = derivative_r(x, N, eta, omega, alphas)
     end
 end
 
-function x = gaussNewton(k, N, eta, omega, alphas, Ic_alphas)
-    x = [1.05, 0.4, 0.25]';
+function x = gaussNewton(k, N, startGuess, eta, omega, alphas, Ic_alphas)
+    %x = [1.05, 0.4, 0.25]';
+    x = startGuess';
     for i=1:k
         A = derivative_r(x, N, eta, omega, alphas);
         cond_num = cond(A' * A);
@@ -80,34 +90,74 @@ function x = gaussNewton(k, N, eta, omega, alphas, Ic_alphas)
     end
 end
 
-eta = trapInt2D(200, nuIntegrand, omega);
-disp(eta);
+function deriv = threePointDeriv(func, alpha, h)
+    % No need to wrap around alpha values inside [0, 2pi] since
+    %   all associated functions are already periodic such that
+    %   we only care about the equivalence class.
+    f_left = func(alpha-h);
+    f_right = func(alpha+h);
 
-[B,Sol] = hhsolver(omega,S,100); 
+    deriv = (f_right - f_left) ./ (2*h);
+end
+
+function Ic_alpha = getIc_alpha(B, alpha, omega, vc_func, gnoise)
+    % Calculate v_c test wave vals for boundary points
+    
+    vc_vals = vc_func(B.x, B.y, alpha, omega);
+
+    % Integrand for I_c(alpha)
+    integrand = gnoise .* vc_vals;
+    Ic_alpha = numInt(B.s, integrand);
+end
+
+function Is_alpha = getIs_alpha(B, alpha, omega, vs_func, gnoise)
+    % Calculate v_s test wave vals for boundary points
+    
+    
+    vs_vals = vs_func(B.x, B.y, alpha, omega);
+
+    % Integrand for I_s(alpha)
+    integrand = gnoise .* vs_vals;
+    Is_alpha = numInt(B.s, integrand);
+end
+
+function startGuess = getStartGuess(B, eta, omega, vc_func, vs_func, noise)
+    h = 0.001;
+
+    IcHandle = @(a) getIc_alpha(B, a, omega, vc_func, noise);
+    IsHandle = @(a) getIs_alpha(B, a, omega, vs_func, noise);
+
+    % Ic values
+    Ic_0 = IcHandle(0);
+    dIc_0 = threePointDeriv(IcHandle, 0, h);
+    dIc_pi2 = threePointDeriv(IcHandle, pi/2, h);
+
+    % Is values
+    Is_0 = IsHandle(0);
+    Is_pi2 = IsHandle(pi/2);
+
+    a_0 = sqrt(Ic_0.^2 + Is_0.^2) / eta;
+    x_0 = dIc_pi2 / (omega * Is_pi2);
+    y_0 = -1 * dIc_0 / (omega * Is_0);
+    
+    startGuess = [a_0, x_0, y_0];
+end
+
+
+
 
 MAX_ALPHA = 100;
 alphas = linspace(0, 2*pi, MAX_ALPHA);
 Ic_alphas = zeros(length(alphas), 1);
-
-noiselevel = 3;
-gnoise = B.un+max(abs(B.un))*randn(size(B.un))*noiselevel;
-
 for i=1:length(alphas)
-    % Calculate v_c test wave vals for boundary points
-    vc_vals_i = v_c(B.x, B.y, alphas(i), omega);
-
-    % Integrand for I_c(alpha)
-    integrand_i = gnoise .* vc_vals_i;
-    Ic_alpha_i = numInt(B.s, integrand_i);
-    Ic_alphas(i) = Ic_alpha_i;
-
-    
+    Ic_alphas(i) = getIc_alpha(B, alphas(i), omega, v_c, gnoise);
 end
 
+startGuess = getStartGuess(B, eta, omega, v_c, v_s, gnoise);
 
-disp(Ic_alphas)
-% To-do finish 3b (GN method to estimate values for a, x_0 and y_0)
-nonlinear_coeffs = gaussNewton(10, length(alphas), eta, omega, alphas, Ic_alphas);
+disp(startGuess)
+
+nonlinear_coeffs = gaussNewton(10, length(alphas), startGuess, eta, omega, alphas, Ic_alphas);
 disp(nonlinear_coeffs)
 
 
