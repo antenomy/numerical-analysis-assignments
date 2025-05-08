@@ -9,19 +9,19 @@ OMEGA = 30;
 S0 = @(r) cos(24*sqrt(r)).*exp(-900*r);
 S = @(amplitude, x, y, source_x, source_y) amplitude * S0((x-source_x).^2+(y-source_y).^2);
 
-%y_shift = 0.6 for question 1
+y_shift = 0.6; 
 
 res_array = move_source(S, OMEGA, 200, TV_x, TV_y);
 minimum = min(res_array, [], "all");
 disp(minimum);
 [min_x, min_y] = find(res_array==minimum);
-S_min = @(x, y) S(1, x, y, x_shift(min_x), y_shift(min_y));
+S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
         
-[bound, sol] = hhsolver(omega, S_min, 200);
+[bound, sol] = hhsolver(OMEGA, S_min, 200);
 
 plotFields(bound, sol, S_min)
 
-plotSoundRatio_x(reslut_array, TV_x)
+plotSoundRatio_x(res_array, TV_x)
 
 
 
@@ -39,22 +39,42 @@ end
 
 %% Question 2
 
-Q2_X_SHIFT = linspace(0.66, 0.7);
+Q2_X_SHIFT = linspace(0.6, 1, 5); %= linspace(0.66, 0.7);
 Q2_Y_SHIFT = 0.6;
 
-res_array = move_source(S, OMEGA, 1000, Q2_X_SHIFT, Q2_Y_SHIFT);
+OMEGA = 30;
 
-A_func = ;
-    
+S0 = @(r) cos(24*sqrt(r)).*exp(-900*r);
+S = @(amplitude, x, y, source_x, source_y) amplitude * S0((x-source_x).^2+(y-source_y).^2);
+
+res_array = move_source(S, OMEGA, 200, Q2_X_SHIFT, Q2_Y_SHIFT);
+
+minimum = min(res_array, [], "all");
+[min_x, min_y] = find(res_array==minimum);
+a = Q2_X_SHIFT(min_x-1);
+b = Q2_X_SHIFT(min_x+1); % We just assume these exist
+
+disp(minimum)
+disp(min_x)
+
+disp(min_y)
+disp(a)
+disp(b)
 
 TOL = 10e-4;
 
-function funcWrapper(x)
-    res_array = move_source(S, OMEGA, 1000, x, Q2_Y_SHIFT);
-    return res_array(1,1);
+function result = func1(x, S, OMEGA, Q)
+    res_array = move_source(S, OMEGA, 1000, x, y);
+    result = res_array(1,1);
 end
 
-result = goldenSectionSearch();
+funcWrapper = @(x) func1(x, S);
+
+final_x = goldenSectionSearch(@funcWrapper, a, b, TOL);
+
+disp(minimum)
+disp(final_x)
+disp(funcWrapper(final_x))
 
 % Golden section search
 function result = goldenSectionSearch(func, a, b, tolerance)
@@ -66,7 +86,10 @@ function result = goldenSectionSearch(func, a, b, tolerance)
             a = a + (1-g) * (b-a);
         end
     end
+    result = (a+b)/2;
 end
+
+
 
 %% Question 3
 
