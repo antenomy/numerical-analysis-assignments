@@ -39,7 +39,9 @@ end
 
 %% Question 2
 
-Q2_X_SHIFT = linspace(0.6, 1, 5); %= linspace(0.66, 0.7);
+format long;
+
+Q2_X_SHIFT = linspace(0.6, 1, 10); %= linspace(0.66, 0.7);
 Q2_Y_SHIFT = 0.6;
 
 OMEGA = 30;
@@ -54,27 +56,25 @@ minimum = min(res_array, [], "all");
 a = Q2_X_SHIFT(min_x-1);
 b = Q2_X_SHIFT(min_x+1); % We just assume these exist
 
-disp(minimum)
-disp(min_x)
-
-disp(min_y)
-disp(a)
-disp(b)
-
 TOL = 10e-4;
 
-function result = func1(x, S, OMEGA, Q)
-    res_array = move_source(S, OMEGA, 1000, x, y);
+function result = func1(x, S, OMEGA, Q2_Y_SHIFT)
+    res_array = move_source(S, OMEGA, 1000, x, Q2_Y_SHIFT);
     result = res_array(1,1);
 end
 
-funcWrapper = @(x) func1(x, S);
+funcWrapper = @(x) func1(x, S, OMEGA, Q2_Y_SHIFT);
 
 final_x = goldenSectionSearch(@funcWrapper, a, b, TOL);
 
-disp(minimum)
-disp(final_x)
-disp(funcWrapper(final_x))
+
+disp(['min x: ', num2str(min_x)])
+disp(['min y: ', num2str(min_y)])
+disp(['minimum A: ', num2str(minimum)])
+disp(['a: ', num2str(a)])
+disp(['b: ', num2str(b)])
+disp(['final x: ', num2str(final_x)])
+disp(['final A: ', num2str(funcWrapper(final_x))])
 
 % Golden section search
 function result = goldenSectionSearch(func, a, b, tolerance)
