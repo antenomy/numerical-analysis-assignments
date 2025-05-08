@@ -19,7 +19,7 @@ S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
         
 [bound, sol] = hhsolver(OMEGA, S_min, 200);
 
-plotFields(bound, sol, S_min)
+%plotFields(bound, sol, S_min)
 
 plotSoundRatio_x(res_array, TV_x)
 
@@ -58,7 +58,7 @@ b = Q2_X_SHIFT(min_x+1); % We just assume these exist
 
 TOL = 10e-4;
 
-function result = func1(x, S, OMEGA, Q2_Y_SHIFT)
+function result = func1(x, S, OMEGA, Q2_Y_SHIFT) % Additional warpper in order to convert 1x1 matrix res_array to scalar variable
     res_array = move_source(S, OMEGA, 1000, x, Q2_Y_SHIFT);
     result = res_array(1,1);
 end
@@ -76,6 +76,21 @@ disp(['b: ', num2str(b)])
 disp(['final x: ', num2str(final_x)])
 disp(['final A: ', num2str(funcWrapper(final_x))])
 
+S_final = @(x, y) S(1, x, y, final_x, Q2_Y_SHIFT);     
+[bound, sol] = hhsolver(OMEGA, S_final, 200);
+plotFields(bound, sol, S_final)
+
+
+
+
+
+%% Question 3
+
+
+
+
+%%%%%%% Helper functions
+
 % Golden section search
 function result = goldenSectionSearch(func, a, b, tolerance)
     while (a-b) > tolerance
@@ -88,15 +103,6 @@ function result = goldenSectionSearch(func, a, b, tolerance)
     end
     result = (a+b)/2;
 end
-
-
-
-%% Question 3
-
-
-
-
-%%%%%%% Helper functions
 
 function return_array = move_source(S, omega, N, x_shift, y_shift) % S Function, x_shift and y_shift arrays
     return_array = zeros(length(x_shift), length(y_shift));
