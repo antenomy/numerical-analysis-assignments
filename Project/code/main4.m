@@ -21,7 +21,7 @@ S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
 
 %plotFields(bound, sol, S_min)
 
-plotSoundRatio_x(res_array, TV_x)
+%plotSoundRatio_x(res_array, TV_x)
 
 
 
@@ -77,8 +77,8 @@ disp(['final x: ', num2str(final_x)])
 disp(['final A: ', num2str(funcWrapper(final_x))])
 
 S_final = @(x, y) S(1, x, y, final_x, Q2_Y_SHIFT);     
-[bound, sol] = hhsolver(OMEGA, S_final, 200);
-plotFields(bound, sol, S_final)
+%[bound, sol] = hhsolver(OMEGA, S_final, 200);
+%plotFields(bound, sol, S_final)
 
 
 
@@ -99,15 +99,32 @@ S = @(amplitude, x, y, source_x, source_y) amplitude * S0((x-source_x).^2+(y-sou
 res_array = move_source(S, OMEGA, 400, Q3_X_SHIFT, Q3_Y_SHIFT);
 
 minimum = min(res_array, [], "all");
-[min_x, min_y] = find(res_array==minimum);
+[X_index, Y_index] = find(res_array==minimum);
 
-disp(['min x: ', num2str(min_x)])
-disp(['min y: ', num2str(min_y)])
+disp(['min x: ', num2str(X_index)])
+disp(['min y: ', num2str(Y_index)])
 disp(['minimum A: ', num2str(minimum)])
 
-S_final = @(x, y) S(1, x, y, min_x, min_y);     
-[bound, sol] = hhsolver(OMEGA, S_final, 500);
+
+
+S_min = @(x, y) S(1, x, y, Q3_X_SHIFT(X_index), Q3_Y_SHIFT(Y_index));     
+[bound, sol] = hhsolver(OMEGA, S_min, 500);
+plotFields(bound, sol, S_min)
+
+
+TOL = 10e-4;
+
+
+funcWrapper = @(X) move_source(S, OMEGA, 1000, X(1), X(2));
+X0 = [Q3_X_SHIFT(X_index), Q3_Y_SHIFT(Y_index)];
+
+options = optimset('Display','iter');
+Xopt = fminsearch(funcWrapper, X0, options);
+
+S_final = @(x, y) S(1, x, y, Xopt(1), Xopt(2));    
+[bound, sol] = hhsolver(OMEGA, S_final, 1000);
 plotFields(bound, sol, S_final)
+
 
 
 %%%%%%% Helper functions
