@@ -86,11 +86,28 @@ plotFields(bound, sol, S_final)
 
 %% Question 3
 
+format long;
+
 Q3_X_SHIFT = linspace(0.6, 1, 10); %= linspace(0.66, 0.7);
 Q3_Y_SHIFT = linspace(0, 0.6, 10);
 
+OMEGA = 30;
 
+S0 = @(r) cos(24*sqrt(r)).*exp(-900*r);
+S = @(amplitude, x, y, source_x, source_y) amplitude * S0((x-source_x).^2+(y-source_y).^2);
 
+res_array = move_source(S, OMEGA, 200, Q3_X_SHIFT, Q3_Y_SHIFT);
+
+minimum = min(res_array, [], "all");
+[min_x, min_y] = find(res_array==minimum);
+
+disp(['min x: ', num2str(min_x)])
+disp(['min y: ', num2str(min_y)])
+disp(['minimum A: ', num2str(minimum)])
+
+S_final = @(x, y) S(1, x, y, final_x, min_y);     
+[bound, sol] = hhsolver(OMEGA, S_final, 200);
+plotFields(bound, sol, S_final)
 
 
 %%%%%%% Helper functions
