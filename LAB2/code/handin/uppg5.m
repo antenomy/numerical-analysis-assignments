@@ -1,8 +1,6 @@
 Iexact = 6.231467927023725;  % Ett noggrannt värde för I
 
 %% 5a Trapetsregeln i 10 dimensioner
-
-
 % Current tests (on my laptop at least) show 7 to be maximum number with sub-30s evaluation time.
 process_time = 0;
 n = 1;
