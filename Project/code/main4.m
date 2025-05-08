@@ -86,6 +86,10 @@ plotFields(bound, sol, S_final)
 
 %% Question 3
 
+Q3_X_SHIFT = linspace(0.6, 1, 10); %= linspace(0.66, 0.7);
+Q3_Y_SHIFT = linspace(0, 0.6, 10);
+
+
 
 
 
