@@ -1,3 +1,11 @@
+% INSTRUCTIONS FOR RUNNING
+%
+%   Each question can be run completely independently or they can be run
+%   together consecutively. All helper functions are at the bottom of the
+%   file.
+%
+%   Note: The Question 3 section takes quite some time to run. (Approx 5 mins for us)
+
 
 %% Question 1
 
@@ -17,7 +25,8 @@ minimum = min(res_array, [], "all");
 [min_x, min_y] = find(res_array==minimum);
 S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
       
-disp(minimum);
+disp(["Minimum A:", num2str(minimum)]);
+disp(["Minimum (x, y):"])
 disp([TV_x(min_x), TV_y]);
 
 [bound, sol] = hhsolver(OMEGA, S_min, 200);
@@ -25,19 +34,6 @@ disp([TV_x(min_x), TV_y]);
 plotFields(bound, sol, S_min)
 
 plotSoundRatio_x(res_array, TV_x)
-
-
-
-
-function plotSoundRatio_x(A, x_shift) % A and x_shift are equally sized arrays
-    
-    plot(x_shift, A, 'b-')
-    hold on;
-    grid on;
-    hold off;
-end
-
-
 
 
 %% Question 2
@@ -71,8 +67,8 @@ funcWrapper = @(x) func1(x, S, OMEGA, Q2_Y_SHIFT);
 final_x = goldenSectionSearch(@funcWrapper, a, b, TOL);
 
 
-disp(['min x: ', num2str(min_x)])
-disp(['min y: ', num2str(min_y)])
+disp(['min x: ', num2str(Q2_X_SHIFT(min_x))])
+disp(['min y: ', num2str(Q2_Y_SHIFT(min_y))])
 disp(['minimum A: ', num2str(minimum)])
 disp(['a: ', num2str(a)])
 disp(['b: ', num2str(b)])
@@ -82,9 +78,6 @@ disp(['final A: ', num2str(funcWrapper(final_x))])
 S_final = @(x, y) S(1, x, y, final_x, Q2_Y_SHIFT);     
 [bound, sol] = hhsolver(OMEGA, S_final, 200);
 plotFields(bound, sol, S_final)
-
-
-
 
 
 %% Question 3
@@ -132,6 +125,8 @@ disp(['final optimized x: ', num2str(Xopt(1))])
 disp(['final optimized y: ', num2str(Xopt(2))])
 disp(['minimum optimized A: ', num2str(funcWrapper(Xopt))])
 
+
+
 %%%%%%% Helper functions
 
 % Golden section search
@@ -147,7 +142,8 @@ function result = goldenSectionSearch(func, a, b, tolerance)
     result = (a+b)/2;
 end
 
-function return_array = move_source(S, omega, N, x_shift, y_shift) % S Function, x_shift and y_shift arrays
+% Returns an array of A ratios for a grid of points, represented by the arrays x_shift and y_shift 
+function return_array = move_source(S, omega, N, x_shift, y_shift)
     return_array = zeros(length(x_shift), length(y_shift));
     for i_x=1:length(x_shift)
         for i_y=1:length(y_shift)
@@ -157,13 +153,12 @@ function return_array = move_source(S, omega, N, x_shift, y_shift) % S Function,
             w = find(sol.x<=0.25 & sol.y>=0.5);
             A = max(abs(sol.u(w)))/max(abs(sol.u(:)));
 
-            return_array(i_x,i_y) = A;
-            
-            
+            return_array(i_x,i_y) = A;         
         end
     end
 end
 
+% Plots Helmholtz solution data 
 function plotFields(BB, Sol, sourceModel)
     figure;
 
@@ -209,4 +204,13 @@ function plotFields(BB, Sol, sourceModel)
         
     figure;
     mesh(Sol.x,Sol.y,Sol.u)
+end
+
+% Plots A with respect to x_Shift (For question 1)
+function plotSoundRatio_x(A, x_shift) % A and x_shift are equally sized arrays
+    
+    plot(x_shift, A, 'b-')
+    hold on;
+    grid on;
+    hold off;
 end
