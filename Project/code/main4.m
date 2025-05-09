@@ -13,10 +13,13 @@ y_shift = 0.6;
 
 res_array = move_source(S, OMEGA, 200, TV_x, TV_y);
 minimum = min(res_array, [], "all");
-disp(minimum);
+
 [min_x, min_y] = find(res_array==minimum);
 S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
-        
+      
+disp(minimum);
+disp([TV_x(min_x), TV_y]);
+
 [bound, sol] = hhsolver(OMEGA, S_min, 200);
 
 plotFields(bound, sol, S_min)
