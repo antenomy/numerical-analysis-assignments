@@ -19,9 +19,9 @@ S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
         
 [bound, sol] = hhsolver(OMEGA, S_min, 200);
 
-%plotFields(bound, sol, S_min)
+plotFields(bound, sol, S_min)
 
-%plotSoundRatio_x(res_array, TV_x)
+plotSoundRatio_x(res_array, TV_x)
 
 
 
@@ -77,8 +77,8 @@ disp(['final x: ', num2str(final_x)])
 disp(['final A: ', num2str(funcWrapper(final_x))])
 
 S_final = @(x, y) S(1, x, y, final_x, Q2_Y_SHIFT);     
-%[bound, sol] = hhsolver(OMEGA, S_final, 200);
-%plotFields(bound, sol, S_final)
+[bound, sol] = hhsolver(OMEGA, S_final, 200);
+plotFields(bound, sol, S_final)
 
 
 
