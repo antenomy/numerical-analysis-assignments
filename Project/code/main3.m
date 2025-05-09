@@ -45,10 +45,18 @@ params.ETA_TRAPEZOID_STEPS = 800; % How many steps used in integrating for eta (
 params.GAUSS_NEWTON_RUNS = 12; % How many iterations Gauss-Newton algorithm should run
 params.DERIV_STEP = 0.000001; % Step size in calculating derivatives (for I_c, I_s)
 
-MODE = "FILE";
-SOURCE_NUM = 5;
+MODE = "CUSTOM";
+SOURCE_NUM = 1;
+
+OMEGA = 19;
+AMPLITUDE = 1;
+X_SOURCE  = 0.45;
+Y_SOURCE  = 0.2;
+NOISE_LEVEL = 10; % Add noise to sound boundary data
+
 
 filenames = ["source1.mat", "source2.mat", "source3.mat", "source4.mat", "source5.mat"];
+
 
 S0 = @(r) cos(24*sqrt(r)).*exp(-900*r);
 v_c = @(x, y, alpha, omega) cos(omega.*(x.*cos(alpha) + y.*sin(alpha)));
@@ -60,27 +68,39 @@ switch MODE
         OMEGA = file.omega;
         disp(OMEGA)
         B = file.B;
+        solveSoundProblem(B, OMEGA, S0, v_c, v_s, params);
     case "CUSTOM" % Solve custom problem
-        OMEGA = 19;
-        AMPLITUDE = 1;
-        X_SOURCE  = 0.45;
-        Y_SOURCE  = 0.2;
-        NOISE_LEVEL = 0.1; % Add noise to sound boundary data
-
         S = @(x,y) AMPLITUDE*S0((x-X_SOURCE).^2+(y-Y_SOURCE).^2);
         [B,Sol] = hhsolver(OMEGA,S,params.HHSOLVER_STEPS);
         
         B.un = B.un+max(abs(B.un)).*randn(size(B.un)).*NOISE_LEVEL;
-
+        [amplitude, x0, y0, eta, alphas, Ic_alphas] = solveSoundProblem(B, OMEGA, S0, v_c, v_s, params);
+        plotAlphas(alphas, Ic_alphas, AMPLITUDE, X_SOURCE, Y_SOURCE, OMEGA, eta, v_c)
+    case "NOISE"
+        S = @(x,y) AMPLITUDE*S0((x-X_SOURCE).^2+(y-Y_SOURCE).^2);
+        [B,Sol] = hhsolver(OMEGA,S,params.HHSOLVER_STEPS);
+        levels = 0; %[1e-2, 1e-1, 0.5, 1.0];
+        figure;
+        for k=1:length(levels)
+            lvl = levels(k);
+            gnoise = B.un + max(abs(B.un)) * randn(size(B.un)) * lvl;
+            %subplot(2,2,k);
+            plot(B.s, B.un,    'b-'); hold on;
+            %plot(B.s, gnoise,'r.');
+            hold off;
+            title(['g = ',num2str(lvl)]);
+            xlabel('s'); ylabel('g(s)');
+            axis tight; grid on;
+        end
 end
 
 
-solveSoundProblem(B, OMEGA, S0, v_c, v_s, params);
 
-function solveSoundProblem(BB, omega, S0Func, v_c, v_s, params)
+
+function [amplitude, x0, y0, eta, alphas, Ic_alphas] = solveSoundProblem(BB, omega, S0Func, v_c, v_s, params)
     etaIntegrand = @(x,y, omega) S0Func(x.^2+y.^2).*cos(omega*x);
     eta = trapInt2D(params.ETA_TRAPEZOID_STEPS, etaIntegrand, omega);
-
+    disp(eta)
     
     alphas = linspace(0, 2*pi, params.ALPHA_NUM);
     Ic_alphas = zeros(length(alphas), 1);
@@ -89,17 +109,24 @@ function solveSoundProblem(BB, omega, S0Func, v_c, v_s, params)
     end
 
     startGuess = getStartGuess(BB, eta, omega, v_c, v_s, params.DERIV_STEP);
-    disp(startGuess);
     problem_coeffs = gaussNewton(params.GAUSS_NEWTON_RUNS, length(alphas), startGuess, eta, omega, alphas, Ic_alphas);
-    disp(problem_coeffs);
     
     amplitude = problem_coeffs(1);
     x0 = problem_coeffs(2);
     y0 = problem_coeffs(3);
+    
+    disp(startGuess)
+
+    disp(['Omega: ', num2str(omega)])
+    disp(['Amplitude: ', num2str(amplitude, 15)])
+    disp(['x0: ', num2str(x0, 15)])
+    disp(['y0: ', num2str(y0, 15)])   
 
     SFunc = @(x,y) amplitude*S0Func((x-x0).^2+(y-y0).^2);
     [estimatedB, estimatedSol] = hhsolver(omega,SFunc,params.HHSOLVER_STEPS); 
     plotFields(BB, estimatedB, estimatedSol, SFunc);
+
+    
 end
 
 function I = trapInt2D(n, func, omega)
@@ -270,7 +297,7 @@ function plotFields(BB, estimatedB, Sol, sourceModel)
     mesh(Sol.x,Sol.y,Sol.u)
 end
 
-function plotAlphas(alphas, Ic_alphas, aa, eta, v_c)
+function plotAlphas(alphas, Ic_alphas, aa, xs, ys, omega, eta, v_c)
     % Compute the right-hand side: aa * eta * v_c
     vc_vals = zeros(length(alphas), 1);
     for i = 1:length(alphas)

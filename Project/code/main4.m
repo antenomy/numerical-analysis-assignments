@@ -128,7 +128,9 @@ S_final = @(x, y) S(1, x, y, Xopt(1), Xopt(2));
 [bound, sol] = hhsolver(OMEGA, S_final, 1000);
 plotFields(bound, sol, S_final)
 
-
+disp(['final optimized x: ', num2str(Xopt(1))])
+disp(['final optimized y: ', num2str(Xopt(2))])
+disp(['minimum optimized A: ', num2str(funcWrapper(Xopt))])
 
 %%%%%%% Helper functions
 
