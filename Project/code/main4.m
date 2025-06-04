@@ -26,7 +26,7 @@ minimum = min(res_array, [], "all");
 S_min = @(x, y) S(1, x, y, TV_x(min_x), TV_y);
       
 disp(["Minimum A:", num2str(minimum)]);
-disp(["Minimum (x, y):"])
+disp(["Minimum (x, y):"]);
 disp([TV_x(min_x), TV_y]);
 
 [bound, sol] = hhsolver(OMEGA, S_min, 200);
@@ -64,7 +64,7 @@ end
 
 funcWrapper = @(x) func1(x, S, OMEGA, Q2_Y_SHIFT);
 
-final_x = goldenSectionSearch(@funcWrapper, a, b, TOL);
+final_x = goldenSectionSearch(funcWrapper, a, b, TOL);
 
 
 disp(['min x: ', num2str(Q2_X_SHIFT(min_x))])
@@ -131,12 +131,24 @@ disp(['minimum optimized A: ', num2str(funcWrapper(Xopt))])
 
 % Golden section search
 function result = goldenSectionSearch(func, a, b, tolerance)
+    g = (sqrt(5) - 1) / 2;
+    x1 = a + (1 - g) * (b - a);
+    x2 = a + g * (b - a);
+    f1 = func(x1);
+    f2 = func(x2);
     while (a-b) > tolerance
-        g = (sqrt(5) - 1) / 2;
-        if func(a + (1 - g)*(b-a)) < func(a + g*(b-a))
-            b = a + g*(b-a);
+        if f1 < f2 
+            b = x2;
+            x2 = x1;
+            x1 = a + (1-g)*(b-a);
+            f2 = f1;
+            f1 = func(x1);
         else
-            a = a + (1-g) * (b-a);
+            a = x1;
+            x1 = x2;
+            x2 = a + g*(b-a);
+            f1 = f2; 
+            f2 = func(x2);
         end
     end
     result = (a+b)/2;
